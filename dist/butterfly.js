@@ -1,8 +1,8 @@
 /**
  * butterfly-loader
  *
- * @version 2.4.2
- * @update 2014-10-10
+ * @version 2.4.4
+ * @update 2015-01-03
  *
  * @see http://gitlab.alibaba-inc.com/stylecn/butterfly-loader.git
  */

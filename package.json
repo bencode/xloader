@@ -4,7 +4,7 @@
   "description": "An amdlike javascript loader can be used in both in node & browse env.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/carcons/butterfly-loader.git"
+    "url": "https://github.com/carcons/butterfly.git"
   },
   "keywords": [
     "AMD",

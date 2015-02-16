@@ -1,0 +1,23 @@
+{
+  "name": "butterfly-loader",
+  "version": "2.4.5",
+  "description": "An amdlike javascript loader can be used in both in node & browse env.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/carcons/butterfly-loader.git"
+  },
+  "keywords": [
+    "AMD",
+    "javascript loader"
+  ],
+  "main": "dist/butterfly4node",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-compare-size": "~0.4.0",
+    "grunt-cmd-transport": "~0.4.1",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-uglify": "~0.6.0",
+    "grunt-contrib-concat": "~0.5.0",
+    "gzip-js": "~0.3.2"
+  }
+}

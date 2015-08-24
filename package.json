@@ -1,6 +1,6 @@
 {
   "name": "butterfly-loader",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "description": "An amdlike javascript loader can be used in both in node & browse env.",
   "repository": {
     "type": "git",

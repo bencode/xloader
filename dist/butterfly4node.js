@@ -8,4 +8,4 @@ require('../src/require');
 require('../src/loader');
 require('../src/weave');
 
-module.exports = butterfly;
+module.exports = global.butterfly;

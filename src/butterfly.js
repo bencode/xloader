@@ -3,10 +3,8 @@
  *
  * @version @VERSION
  * @update @DATE
- *
- * @see http://gitlab.alibaba-inc.com/stylecn/butterfly-loader.git
  */
-;(function(global) {
+;(function(global) {  // eslint-disable-line
 
 
 var cache = {};

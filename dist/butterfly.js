@@ -2,11 +2,9 @@
  * butterfly-loader
  *
  * @version 2.4.5
- * @update 2015-02-04
- *
- * @see http://gitlab.alibaba-inc.com/stylecn/butterfly-loader.git
+ * @update 2015-08-24
  */
-;(function(global) {
+;(function(global) {  // eslint-disable-line
 
 
 var cache = {};

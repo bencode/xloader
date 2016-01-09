@@ -11,14 +11,14 @@ butterfly-loader
 ## Useage
 
 
-1. 在HTML中引入加载器
+在HTML中引入加载器
 
 
 ```html
 <script src="path-to-butterfly-root/dist/butterfly.min.js"></script>
 ```
 
-2. API
+## API
 
 
 ### define(id, depends, factory) - 定义模块
@@ -39,11 +39,9 @@ define(factory)
 ```
 
 
-## butterfly.config(name, value) - 配置加载器
+###  butterfly.config(name, value) - 配置加载器
 
 用于设置和获取config
-
-### API
 
 ```js
 loader.config(name)

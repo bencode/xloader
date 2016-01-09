@@ -1,6 +1,6 @@
 {
   "name": "butterfly-loader",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "An amdlike javascript loader can be used in both in node & browse env.",
   "keywords": [
     "AMD",
@@ -13,7 +13,6 @@
     "cov": "node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- -u exports --require 'should' --recursive --bail --check-leaks test/",
     "travis": "node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -u exports --require 'should' --recursive --bail --check-leaks test/",
     "ci": "tnpm run lint && tnpm run test && tnpm run cov",
-
     "webpack-build": "node_modules/.bin/webpack",
     "uglify": "node_modules/.bin/uglifyjs dist/butterfly.js -o dist/butterfly.min.js --source-map dist/butterfly.min.js.map",
     "build": "npm run webpack-build && npm run uglify",

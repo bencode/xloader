@@ -1,154 +1,159 @@
-define('loader',
-        ['global', 'util', 'log', 'event', 'config',
-        'define', 'require', 'request'],
+'use strict';
 
-/* jshint maxparams:false */
-function(global, util, log, Event, Config,
-        Define, Require, Request) {
 
-var exports = function(namespace, options) {
-    var ns = namespace;
-    var opt = options || {};
+const util = require('./util');
+const log = require('./log');
+const klass = require('./klass');
+const Event = require('./event');
+const Config = require('./config');
+const Define = require('./define');
+const Require = require('./require');
+const Request = require('./request');
 
-    if (global[ns]) {
-        throw new Error('global.' + ns + ' already exist.');
-    }
 
-    global[ns] = this;
+module.exports = klass({
+  init: function(namespace, options) {
+    const ns = namespace;
+    const opt = options || {};
 
     this.namespace = ns;
     this.options = opt;
 
     init(this);
+    handleError(this);
     handleAlias(this);
     handleResolve(this);
     handleRequest(this);
     defineSpecial(this);
 
     opt.autoloadAnonymous && loadAnonymous(this);
-};
+  }
+});
 
 
 function init(self) {
-    var modules = self.modules = {};
+  const modules = self.modules = {};
 
-    new Event(self);
+  new Event(self);    // eslint-disable-line
 
-    var config = new Config();
-    self.config = function(name, value) {
-        return value === undefined ? config.get(name) :
-                config.set(name, value);
-    };
+  const config = new Config();
+  const define = new Define(self);
+  const require = new Require(self);
 
-    self.define = util.proxy(new Define(self), 'define');
-    self.require = util.proxy(new Require(self), 'require');
+  if (log.isEnabled('debug')) {
+    self._config = config;
+    self._define = define;
+    self._require = require;
+  }
 
-    self.hasDefine = function(id) {
-        return !!modules[id];
-    };
+  self.config = function(name, value) {
+    return value === undefined ? config.get(name) :
+        config.set(name, value);
+  };
 
-    self.getModules = function() {
-        return modules;
-    };
+  self.define = util.proxy(define, 'define');
+  self.require = util.proxy(require, 'require');
 
-    self.resolve = function(id) {
-        return self.trigger('resolve', id);
-    };
+  self.hasDefine = function(id) {
+    return !!modules[id];
+  };
 
-    self.undefine = function(id) {
-        delete modules[id];
-    };
+  self.getModules = function() {
+    return modules;
+  };
+
+  self.resolve = function(id) {
+    return self.trigger('resolve', id);
+  };
+
+  self.undefine = function(id) {
+    delete modules[id];
+  };
+}
+
+
+function handleError(self) {
+  self.on('error', function(e) {
+    log.error(e.stack);
+  });
 }
 
 
 function handleAlias(self) {
-    self.on('alias', function(id) {
-        return filter(self.config('alias'), function(index, alias) {
-            return typeof alias === 'function' ? alias(id) : alias[id];
-        });
+  self.on('alias', function(id) {
+    return filter(self.config('alias'), function(index, alias) {
+      return typeof alias === 'function' ? alias(id) : alias[id];
     });
+  });
 }
 
 
-var rAbs = /(^\w*:\/\/)|(^[.\/])/;
+const rAbs = /(^(\w+:)?\/\/)|(^\/)/;
 
 function handleResolve(self) {
-    self.on('resolve', function(id) {
-        var url = filter(self.config('resolve'), function(index, resolve) {
-            return resolve(id);
-        });
-
-        if (!url && rAbs.test(id)) {
-            url = id;
-        }
-
-        return url;
+  self.on('resolve', function(id) {
+    let url = filter(self.config('resolve'), function(index, resolve) {
+      return resolve(id);
     });
+
+    if (!url && rAbs.test(id)) {
+      url = id;
+    }
+
+    return url;
+  });
 }
 
 
 function handleRequest(self) {
-    var request = Request && (new Request(self));
-    self.on('request', function(options, callback) {
-        var handler = self.config('requestHandler');
-        if (handler) {
-            handler(options, callback);
-        } else if (request) {
-            request.handle(options, callback);
-        } else {
-            throw new Error('no request handler found');
-        }
-    });
+  const request = new Request(self);
+  self.on('request', function(options, callback) {
+    request.handle(options, callback);
+  });
 }
 
 
 function defineSpecial(self) {
-    self.define('require', function() {
-        return self.require;
-    });
+  self.define('require', function() {
+    return self.require;
+  });
 
-    self.define('module', function() {
-        return {
-            $compile: function(module) {
-                return module;
-            }
-        };
-    });
+  self.define('module', function() {
+    return {
+      $compile: function(module) {
+        return module;
+      }
+    };
+  });
 
-    self.define('exports', function() {
-        return {
-            $compile: function(module) {
-                return module.exports;
-            }
-        };
-    });
+  self.define('exports', function() {
+    return {
+      $compile: function(module) {
+        return module.exports;
+      }
+    };
+  });
 }
 
 
 function loadAnonymous(self) {
-    self.on('define', function(module) {
-        if (module.anonymous) {
-            log.debug('require anonymous module: ' + module.id);
-            self.require(module.id);
-        }
-    });
+  self.on('define', function(module) {
+    if (module.anonymous) {
+      log.debug('require anonymous module: ' + module.id);
+      self.require(module.id);
+    }
+  });
 }
 
 
 function filter(list, fn) {
-    if (!list || list.length === 0) {
-        return;
+  if (!list || list.length === 0) {
+    return null;
+  }
+  for (let i = 0, c = list.length; i < c; i++) {
+    const v = fn(i, list[i]);
+    if (v) {
+      return v;
     }
-    for (var i = 0, c = list.length; i < c; i++) {
-        var v = fn(i, list[i]);
-        if (v) {
-            return v;
-        }
-    }
+  }
 }
-
-
-return exports;
-
-
-});

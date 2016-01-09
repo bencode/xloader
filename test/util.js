@@ -1,99 +1,102 @@
-define('test/util', ['util'], function(util) {
+'use strict';
+
+
+const util = require('../src/util');
+
 
 describe('util', function() {
+  it('isArray', function() {
+    util.isArray([1, 2, 3]).should.be.true();
+    util.isArray('123').should.be.false();
+    util.isArray(arguments).should.be.false();
+  });
 
-    it('isArray', function() {
-        expect(util.isArray([1, 2, 3])).toBeTruthy();
-        expect(util.isArray('123')).toBeFalsy();
-        expect(util.isArray(arguments)).toBeFalsy();
+
+  it('extend', function() {
+    const o = util.extend(
+        { a: 1, b: 2, d: 'd' },
+        { b: 3, c: 4, d: null, e: undefined, f: 0 });
+    o.should.be.eql({ a: 1, b: 3, c: 4, d: 'd', f: 0 });
+  });
+
+
+  it('each', function() {
+    const list = [1, 2, 3, 4];
+    let s = 0;
+    util.each(list, function(index, value) {
+      s += value;
+    });
+    s.should.be.equal(10);
+
+    const o = { a: 1, b: 2, c: 3 };
+    s = '';
+    util.each(o, function(k, v) {
+      s += k + '=' + v + ';';
     });
 
+    s.should.be.equal('a=1;b=2;c=3;');
+  });
 
-    it('extend', function() {
-        var o = util.extend(
-                { a: 1, b: 2, d: 'd'}, 
-                { b: 3, c: 4, d: null, e: undefined, f: 0 });
-        expect(o).toEqual({ a: 1, b: 3, c: 4, d: 'd', f: 0 });
+
+  it('map', function() {
+    let list = [1, 2, 3, 4, 5];
+    list = util.map(list, function(i, v) {
+      if (i > 1) {
+        return v * 2;
+      }
     });
 
+    list.should.be.eql([6, 8, 10]);
+  });
 
-    it('each', function() {
-        var list = [1, 2, 3, 4];
-        var s = 0;
-        util.each(list, function(index, value) {
-            s += value;
-        });
-        expect(s).toBe(10);
 
-        var o = { a: 1, b: 2, c: 3 };
-        var s = '';
-        util.each(o, function(k, v) {
-            s += k + '=' + v + ';';
-        });
+  it('proxy', function() {
+    const o = {
+      m: function() {
+        return this.n;
+      },
+      n: 100
+    };
+    const fn = util.proxy(o, 'm');
+    fn().should.be.equal(100);
+  });
 
-        expect(s).toBe('a=1;b=2;c=3;');
+
+  it('assert', function() {
+    (function() {
+      util.assert(true, 'assert true');
+    }).should.not.throw();
+
+    (function() {
+      util.assert(false, 'assert false');
+    }).should.throw();
+  });
+
+
+  it('guid', function() {
+    const now = util.guid();
+    now.should.be.type('number');
+    (util.guid() - now).should.be.equal(1);
+  });
+
+
+  it('when', function(done) {
+    const works = [];
+    for (let i = 0; i < 5; i++) {
+      const k = i + 1;
+      works.push(function(fn) {  // eslint-disable-line
+        setTimeout(function() {
+          fn(k);
+        }, 100);
+      });
+    }
+
+    util.when(works, function(list) {
+      for (let i = 0; i < 5; i++) {
+        list[i].should.be.equal(i + 1);
+      }
+
+      done();
     });
-
-
-    it('map', function() {
-        var list = [1, 2, 3, 4, 5];
-        list = util.map(list, function(i, v) {
-            if (i > 1) {
-                return v * 2;
-            }
-        });
-
-        expect(list).toEqual([6, 8, 10]);
-    });
-
-
-    it('proxy', function() {
-        var o = { m: function() { return this.n; }, n: 100 };
-        var fn = util.proxy(o, 'm');
-        expect(fn()).toBe(100);
-    });
-
-
-    it('assert', function() {
-        expect(function() {
-            util.assert(true, 'assert true')
-        }).not.toThrow();
-
-        expect(function() {
-            util.assert(false, 'assert false');
-        }).toThrow();
-    });
-
-
-    it('guid', function() {
-        var now = util.guid();
-        expect(typeof now).toBe('number');
-        expect(util.guid() - now).toBe(1);
-    });
-
-
-    it('when', function(done) {
-        var works = [];
-        for (var i = 0; i < 5; i++) {
-            (function() {
-                var k = i + 1;
-                works.push(function(fn) {
-                    setTimeout(function() {
-                        fn(k);
-                    }, 100);
-                });
-            })();
-        }
-
-        util.when(works, function(list) {
-            for (var i = 0; i < 5; i++) {
-                expect(list[i]).toBe(i + 1);
-            }
-
-            done();
-        });
-    });
-
-});
-
+  });
 });

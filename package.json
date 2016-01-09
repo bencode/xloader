@@ -1,24 +1,51 @@
 {
   "name": "butterfly-loader",
-  "version": "2.4.7",
+  "version": "3.0.0",
   "description": "An amdlike javascript loader can be used in both in node & browse env.",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:bencode/butterfly-loader.git"
-  },
   "keywords": [
     "AMD",
     "javascript loader"
   ],
-  "main": "dist/butterfly4node",
+  "main": "dist/node.js",
+  "scripts": {
+    "lint": "node_modules/.bin/eslint lib test",
+    "test": "node_modules/.bin/_mocha --require 'should' --reporter spec --recursive --bail --check-leaks test/",
+    "cov": "node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- -u exports --require 'should' --recursive --bail --check-leaks test/",
+    "travis": "node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -u exports --require 'should' --recursive --bail --check-leaks test/",
+    "ci": "tnpm run lint && tnpm run test && tnpm run cov",
+
+    "webpack-build": "node_modules/.bin/webpack",
+    "uglify": "node_modules/.bin/uglifyjs dist/butterfly.js > dist/butterfly.min.js",
+    "build": "npm run webpack-build && npm run uglify",
+    "server": "node_modules/.bin/webpack-dev-server --content-base .",
+    "start": "npm run server"
+  },
+  "config": {
+    "ghooks": {
+      "pre-commit": "npm run lint && npm run test",
+      "commit-msg": "node ./node_modules/.bin/validate-commit-msg",
+      "pre-push": "npm run ci"
+    }
+  },
+  "dependencies": {},
   "devDependencies": {
-    "eslint-config-bcd": "~0.1.5",
-    "grunt": "~0.4.5",
-    "grunt-cmd-transport": "~0.4.1",
-    "grunt-compare-size": "~0.4.0",
-    "grunt-contrib-concat": "~0.5.0",
-    "grunt-contrib-jshint": "~0.10.0",
-    "grunt-contrib-uglify": "~0.6.0",
-    "gzip-js": "~0.3.2"
+    "babel-core": "~6.4.0",
+    "babel-loader": "~6.2.1",
+    "babel-preset-es2015": "~6.3.13",
+    "eslint": "~1.10.3",
+    "eslint-config-bce": "~0.5.0",
+    "jasmine": "~2.4.1",
+    "mocha": "~2.3.4",
+    "should": "~8.0.2",
+    "sinon": "~1.17.2",
+    "uglify-js": "~2.6.1",
+    "webpack": "~1.12.10",
+    "webpack-dev-server": "~1.14.0",
+    "ghooks": "~1.0.3",
+    "validate-commit-msg": "~1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:bencode/butterfly-loader.git"
   }
 }

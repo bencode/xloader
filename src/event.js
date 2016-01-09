@@ -1,57 +1,56 @@
-define('event', ['util', 'log'], function(util, log) {
+'use strict';
 
 
-var slice = [].slice;
+const log = require('../src/log');
 
 
-return function(target) {
-    var cache = {};
-
-    target = target || {};
-
-    target.on = function(name, fn) {
-        log.debug('event.on:' + name);
-        var list = cache[name] || (cache[name] = []);
-        list.push(fn);
-    };
+const slice = [].slice;
 
 
-    target.trigger = function(name) {
-        log.debug('event.trigger:' + name);
+module.exports = function(target) {
+  const cache = {};
 
-        var list = cache[name];
-        if (list) {
-            var params = arguments.length > 1 ? slice.call(arguments, 1) : [];
-            for (var i = 0, c = list.length; i < c; i++) {
-                var result = list[i].apply(target, params);
-                if (result !== null && result !== undefined) {
-                    return result;
-                }
-            }
+  target = target || {};
+
+  target.on = function(name, fn) {
+    log.debug('event.on: ' + name, fn);
+    const list = cache[name] || (cache[name] = []);
+    list.push(fn);
+  };
+
+
+  target.trigger = function(name) {
+    const list = cache[name];
+    if (list) {
+      const params = arguments.length > 1 ? slice.call(arguments, 1) : [];
+      log.debug('event.trigger: ' + name, params);
+      for (let i = 0, c = list.length; i < c; i++) {
+        const result = list[i].apply(target, params);
+        if (result !== null && result !== undefined) {
+          return result;
         }
-    };
+      }
+    }
+  };
 
 
-    target.off = function(name, fn) {
-        log.debug('event.off:' + name);
+  target.off = function(name, fn) {
+    log.debug('event.off: ' + name, fn);
 
-        var list = cache[name];
-        if (list) {
-            for (var i = list.length - 1; i >= 0; i--) {
-                if (list[i] === fn) {
-                    list.splice(i, 1);
-                }
-            }
-            if (!list.length) {
-                delete cache[name];
-            }
+    const list = cache[name];
+    if (list) {
+      for (let i = list.length - 1; i >= 0; i--) {
+        if (list[i] === fn) {
+          list.splice(i, 1);
         }
-    };
+      }
+      if (!list.length) {
+        delete cache[name];
+      }
+    }
+  };
 
 
-    return target;
+  return target;
 };
 //~
-
-
-});

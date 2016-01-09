@@ -1,26 +1,38 @@
-define('define', ['util', 'log'], function(util, log) {
+'use strict';
 
 
-var exports = function(loader) {
-    var modules = loader.modules;
+const util = require('./util');
+const log = require('./log');
+const klass = require('./klass');
 
-    this.define = function(id, depends, factory) {
-        var module = regular(id, depends, factory);
-        id = module.id;
 
-        if (modules[id]) {
-            log.warn('module already defined, ignore: ' + id);
-            return modules[id];
-        } else {
-            log.debug('define module: ' + id);
-            modules[id] = module;
-        }
+module.exports = klass({
+  init: function(loader) {
+    this.loader = loader;
+  },
 
-        loader.trigger('define', module);
 
-        return module;
-    };
-};
+  define: function(id, depends, factory) {
+    const loader = this.loader;
+    const modules = loader.modules;
+
+    const module = regular(id, depends, factory);
+    id = module.id;
+
+    if (modules[id]) {
+      log.warn('module already defined, ignore: ' + id);
+      return modules[id];
+    }
+
+    log.debug('define module: ' + id, module);
+    modules[id] = module;
+
+    loader.trigger('define', module);
+
+    return module;
+  }
+});
+
 
 
 /**
@@ -30,35 +42,29 @@ var exports = function(loader) {
  * define(depends{array}, factory)
  * define(factory{function})
  */
-var assert = util.assert;
-var isArray = util.isArray;
-var EMPTY = [];
+const assert = util.assert;
+const isArray = util.isArray;
+const EMPTY = [];
 
 function regular(id, depends, factory) {
-    if (factory === undefined && !isArray(depends)) {
-        factory = depends;
-        depends = EMPTY;
-    }
+  if (factory === undefined && !isArray(depends)) {
+    factory = depends;
+    depends = EMPTY;
+  }
 
-    if (typeof id === 'function') {
-        factory = id;
-        depends = EMPTY;
-        id = null;
-    } else if (isArray(id)) {
-        depends = id;
-        id = null;
-    }
+  if (typeof id === 'function') {
+    factory = id;
+    depends = EMPTY;
+    id = null;
+  } else if (isArray(id)) {
+    depends = id;
+    id = null;
+  }
 
-    assert(isArray(depends), 'arguments error, depends should be an array');
+  assert(isArray(depends), 'arguments error, depends should be an array');
 
-    var anonymous = !id;
-    id = id || '____anonymous' + util.guid();
+  const anonymous = !id;
+  id = id || '____anonymous' + util.guid();
 
-    return { id: id, depends: depends, factory: factory, anonymous: anonymous };
+  return { id: id, depends: depends, factory: factory, anonymous: anonymous };
 }
-//~
-
-return exports;
-
-
-});

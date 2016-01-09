@@ -1,185 +1,197 @@
-define('require', ['util', 'log'], function(util, log) {
+'use strict';
 
 
-var assert = util.assert;
+const klass = require('./klass');
+const util = require('./util');
+const log = require('./log');
 
 
-return function(loader) {
+const assert = util.assert;
 
 
-var modules = loader.modules;
+module.exports = klass({
+  init: function(loader) {
+    this.loader = loader;
+    this.aliasCache = {};
+  },
 
 
-this.require = function(depends, callback) {
+  require: function(depends, callback) {
     depends = util.isArray(depends) ? depends : [depends];
 
-    var module = {
-        proxy: true,
-        id: '____require' + util.guid(),
-        depends: depends,
-        factory: function() {
-            return arguments;
-        }
+    const module = {
+      proxy: true,
+      id: '____require' + util.guid(),
+      depends: depends,
+      factory: function() {
+        return arguments;
+      }
     };
 
-    load(module, function() {
-        callback && callback.apply(null, module.exports);
+    load(this, module, function() {
+      callback && callback.apply(null, module.exports);
     });
 
     return module.exports && module.exports[0];
-};
-//~ require
+  }
+});
 
 
-function load(module, callback) {
-    if (module.loadtimes > 0) {
-        module.loadtimes++;
-        log.debug(module.id + ' is loaded ' + module.loadtimes + ' times');
-        callback();
-        return;
-    }
 
-    var loadlist = module.loadlist || (module.loadlist = []);
-    loadlist.push(callback);
-    if (loadlist.length > 1) {
-        return;
-    }
+function load(self, module, callback) {
+  log.debug('try init: ' + module.id);
 
-    loadDepends(module, function() {
-        compile(module, function() {
-            log.debug(module.id + ' is loaded');
-            module.loadtimes = loadlist.length;
-            delete module.loadlist;
-            util.each(loadlist, function(index, fn) {
-                fn();
-            });
-        });
+  if (module.loadtimes > 0) {
+    module.loadtimes++;
+    log.debug(module.id + ' is loaded ' + module.loadtimes + ' times');
+    callback();
+    return;
+  }
+
+  const loadlist = module.loadlist || (module.loadlist = []);
+  loadlist.push(callback);
+  if (loadlist.length > 1) {
+    log.debug('module is in loading: ' + module.id);
+    return;
+  }
+
+  loadDepends(self, module, function() {
+    compile(self, module, function() {
+      log.debug(module.id + ' is loaded');
+      module.loadtimes = loadlist.length;
+      delete module.loadlist;
+      util.each(loadlist, function(index, fn) {
+        fn();
+      });
     });
+  });
 }
 //~ load
 
 
-var aliasCache = {};
+function loadDepends(self, module, callback) {
+  const loader = self.loader;
+  const modules = loader.modules;
+  const aliasCache = self.aliasCache;
 
-function loadDepends(module, callback) {
-    var depends = module.depends;
-    if (depends.length === 0) {
-        return callback();
-    }
+  const depends = module.depends;
+  if (depends.length === 0) {
+    return callback();
+  }
 
-    var adepends = module.adepends = depends.slice(0);
+  const adepends = module.adepends = depends.slice(0);
+  log.debug('load depends: ', adepends);
 
-    var works = util.map(depends, function(index, id) {
-        return function(fn) {
-            var aid = aliasCache[id] || loader.trigger('alias', id);
-            if (aid) {
-                log.debug('alias ' + id + ' -> ' + aid);
-                id = aid;
-            }
-            aliasCache[id] = id;
-            adepends[index] = id;
+  const works = util.map(depends, function(index, id) {
+    return function(fn) {
+      const aid = aliasCache[id] || loader.trigger('alias', id);
+      if (aid && id !== aid) {
+        log.debug('alias ' + id + ' -> ' + aid);
+        id = aid;
+        aliasCache[id] = id;
+        adepends[index] = id;
+      }
 
-            var o = modules[id];
-            var lfn = function(o) {
-                load(o, fn);
-            };
+      const o = modules[id];
+      const cb = function(lo) {
+        load(self, lo, fn);
+      };
 
-            o ? lfn(o) : loadAsync(id, lfn);
-        };
-    });
+      o ? cb(o) : loadAsync(self, id, cb);
+    };
+  });
 
-    util.when(works, callback);
+  util.when(works, callback);
 }
 //~ loadDepends
 
 
-function compile(module, callback) {
-    loader.trigger('compile', module);
-    var factory = module.factory;
-    if (typeof factory === 'function') {
-        var depends = module.adepends;
-        var proxy = { id: module.id, exports: {} };
-        var list = [];
+function compile(self, module, callback) {
+  const loader = self.loader;
+  const modules = loader.modules;
 
-        depends && depends.length &&
-        util.each(depends, function(index, id) {
-            var o = modules[id];
-            assert((o && ('exports' in o)), 'module should already loaded: ' + id);
-            if (o.exports && typeof o.exports.$compile === 'function') {
-                list[index] = o.exports.$compile(proxy, module);
-            } else {
-                list[index] = o.exports;
-            }
-        });
+  loader.trigger('compile', module);
 
-        try {
-            log.debug('compile ' + module.id);
-            factory = factory.apply(null, list);
-            if (factory === undefined) {
-                factory = proxy.exports;
-            }
-        } catch (e) {
-            log.error(e.stack);
-            loader.trigger('error', e);
-            if (log.isEnabled('info')) {
-                throw e;
-            }
-        }
+  let factory = module.factory;
+  if (typeof factory === 'function') {
+    const depends = module.adepends;
+    const proxy = { id: module.id, exports: {} };
+    const list = [];
+
+    depends && depends.length &&
+    util.each(depends, function(index, id) {
+      const o = modules[id];
+      assert((o && ('exports' in o)), 'module should already loaded: ' + id);
+      if (o.exports && typeof o.exports.$compile === 'function') {
+        list[index] = o.exports.$compile(proxy, module);
+      } else {
+        list[index] = o.exports;
+      }
+    });
+
+    try {
+      log.debug('compile ' + module.id, module);
+      factory = factory.apply(null, list);
+      if (factory === undefined) {
+        factory = proxy.exports;
+      }
+    } catch (e) {
+      factory = null;
+      loader.trigger('error', e);
     }
+  }
 
-    module.exports = factory;
-    callback();
+  module.exports = factory;
+  callback();
 }
 //~ compile
 
 
-var requestList = {};
+const requestList = {};
 
-function loadAsync(id, fn) {
-    var list = requestList[id] || (requestList[id] = []);
+function loadAsync(self, id, callback) {
+  const loader = self.loader;
+  const modules = loader.modules;
 
-    var cb = function(url) {
-        var o = modules[id];
-        if (!o) {
-            log.error('can not find module: ' + loader.namespace + ':' + id);
-            return;
-        }
-        o.async = true;
-        o.url = url;
-        fn(o);
-    };
+  const url = loader.trigger('resolve', id);
+  if (!url) {
+    loader.trigger('error', new Error('can not resolve module: ' + id));
+    return;
+  }
 
-    list.push(cb);
-    if (list.length > 1) {
-        return;
+  log.debug('resolve ' + id + ' -> ' + url);
+
+  const list = requestList[id] || (requestList[id] = []);
+
+  const cb = function() {
+    const o = modules[id];
+    if (!o) {
+      loader.trigger('error', new Error('can not find module: ' + id));
+      return;
     }
 
-    var url = loader.trigger('resolve', id);
-    if (!url) {
-        log.error('can not resolve module: ' + loader.namespace + ':' + id);
-        return;
-    }
+    o.async = true;
+    o.url = url;
+    callback(o);
+  };
 
-    log.debug('resolve ' + id + ' -> ' + url);
+  list.push(cb);
+  if (list.length > 1) {
+    return;
+  }
 
-    var options = {
-        id: id,
-        url: url,
-        namespace: loader.namespace
-    };
+  const options = {
+    id: id,
+    url: url,
+    namespace: loader.namespace
+  };
 
-    loader.trigger('request', options, function() {
-        delete requestList[id];
-        util.each(list, function(index, fn) {
-            fn(url);
-        });
+  log.debug('try request...: ' + url);
+  loader.trigger('request', options, function() {
+    delete requestList[id];
+    util.each(list, function(index, fn) {
+      fn();
     });
+  });
 }
 //~ loadAsync
-
-
-};
-//~ exports;
-
-
-});

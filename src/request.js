@@ -1,38 +1,58 @@
-define('request', ['util', 'log', 'assets'], function(util, log, assets) {
+'use strict';
 
 
-var rFile = /\.(css|js)(\?.*)?$/;
+const klass = require('./klass');
+const util = require('./util');
+const log = require('./log');
 
 
-return function(loader) {
-    var modules = loader.modules;
+const rFile = /\.\w+(\?|$)/;
+const isBrowser = typeof window !== 'undefined' &&
+        typeof document !== 'undefined';
 
-    this.handle = function(options, callback) {
-        var id = options.id;
-        var url = options.url;
 
-        var opts = loader.config('requestOptions');
-        opts = typeof opts === 'function' ? opts(options) : opts;
-        opts = util.extend({ id: id, namespace: options.namespace }, opts);
+module.exports = klass({
+  init: function(loader) {
+    this.loader = loader;
+  },
 
-        opts.success = function() {
-            // define a proxy module for just url request
-            if (!modules[id] && rFile.test(id)) {
-                log.debug('define proxy module for:' + id);
-                loader.define(id);
-                modules[id].file = true;
-            }
-            callback();
-        };
 
-        opts.error = function() {
-            loader.trigger('requesterror', options);
-        };
+  handle: function(options, callback) {
+    const loader = this.loader;
+    const handler = loader.config('requestHandler');
+    if (handler) {
+      return handler(options, callback);
+    }
 
-        assets.load(url, opts);
+    if (!isBrowser) {
+      throw new Error('requestHandler not exists');
+    }
+
+    const modules = loader.modules;
+    const id = options.id;
+    const url = options.url;
+
+    let opts = loader.config('requestOptions');
+    opts = typeof opts === 'function' ? opts(options) : opts;
+    opts = util.extend({ id: id, namespace: options.namespace }, opts);
+
+    opts.success = function() {
+      log.debug('request assets success: ' + url, options);
+      // define a proxy module for just url request
+      if (!modules[id] && rFile.test(id)) {
+        loader.define(id);
+        modules[id].file = true;
+      }
+      callback();
     };
-};
-//~
 
+    opts.error = function(e) {
+      log.debug('request assets error: ' + url, e);
+      loader.trigger('error', e, options);
+    };
 
+    log.debug('request assets: ' + url, options);
+    const assets = require('./assets');
+    assets.load(url, opts);
+  }
 });

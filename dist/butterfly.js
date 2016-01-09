@@ -52,13 +52,13 @@ var butterfly =
 
 	/* eslint no-underscore-dangle: 0 */
 
-	var butterfly = {};
+	var butterfly = module.exports = {};
 
 	butterfly.new = function (namespace, options) {
 	  return new Loader(namespace, options);
 	};
 
-	var gloader = butterfly('butterfly', { autoloadAnonymous: true });
+	var gloader = butterfly.new('butterfly', { autoloadAnonymous: true });
 
 	var methods = ['config', 'on', 'off', 'define', 'require', 'hasDefine', 'getModules', 'resolve', 'undefine'];
 
@@ -81,7 +81,6 @@ var butterfly =
 	  return butterfly;
 	};
 
-	global.butterfly = butterfly;
 	global.define = butterfly.define;
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 

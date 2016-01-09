@@ -8,14 +8,14 @@ const Loader = require('./loader');
 /* eslint no-underscore-dangle: 0 */
 
 
-const butterfly = {};
+const butterfly = module.exports = {};
 
 butterfly.new = function(namespace, options) {
   return new Loader(namespace, options);
 };
 
 
-const gloader = butterfly('butterfly', { autoloadAnonymous: true });
+const gloader = butterfly.new('butterfly', { autoloadAnonymous: true });
 
 
 const methods = [
@@ -46,5 +46,4 @@ butterfly.noConflict = function(deep) {
 };
 
 
-global.butterfly = butterfly;
 global.define = butterfly.define;

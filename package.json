@@ -16,6 +16,7 @@
     "webpack-build": "node_modules/.bin/webpack",
     "uglify": "node_modules/.bin/uglifyjs dist/butterfly.js -o dist/butterfly.min.js --source-map dist/butterfly.min.js.map",
     "build": "npm run webpack-build && npm run uglify",
+    "changelog": "node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -w",
     "server": "node_modules/.bin/webpack-dev-server --content-base .",
     "start": "npm run server"
   },
@@ -26,7 +27,9 @@
       "pre-push": "npm run ci"
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "conventional-changelog": "~0.5.3"
+  },
   "devDependencies": {
     "babel-core": "~6.4.0",
     "babel-loader": "~6.2.1",

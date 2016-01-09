@@ -15,7 +15,7 @@
     "ci": "tnpm run lint && tnpm run test && tnpm run cov",
 
     "webpack-build": "node_modules/.bin/webpack",
-    "uglify": "node_modules/.bin/uglifyjs dist/butterfly.js > dist/butterfly.min.js",
+    "uglify": "node_modules/.bin/uglifyjs dist/butterfly.js -o dist/butterfly.min.js --source-map dist/butterfly.min.js.map",
     "build": "npm run webpack-build && npm run uglify",
     "server": "node_modules/.bin/webpack-dev-server --content-base .",
     "start": "npm run server"

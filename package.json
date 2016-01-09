@@ -1,7 +1,7 @@
 {
   "name": "butterfly-loader",
   "version": "3.0.1",
-  "description": "An amdlike javascript loader can be used in both in node & browse env.",
+  "description": "An AMD javascript loader can be used in both in node & browse env.",
   "keywords": [
     "AMD",
     "javascript loader"

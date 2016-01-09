@@ -5,7 +5,7 @@ butterfly-loader
 [![Coverage Status](https://coveralls.io/repos/bencode/butterfly-loader/badge.svg?branch=master&service=github)](https://coveralls.io/github/bencode/butterfly-loader?branch=master)
 
 
-一个精致实用的"类AMD"javascript模块加载器，可用于node端和浏览器环境
+一个精致实用的AMD javascript模块加载器，可用于node端和浏览器环境
 
 
 ## Useage

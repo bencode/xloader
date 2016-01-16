@@ -28,7 +28,6 @@
     }
   },
   "dependencies": {
-    "conventional-changelog": "~0.5.3"
   },
   "devDependencies": {
     "babel-core": "~6.4.0",
@@ -44,7 +43,9 @@
     "webpack": "~1.12.10",
     "webpack-dev-server": "~1.14.0",
     "ghooks": "~1.0.3",
-    "validate-commit-msg": "~1.0.0"
+    "validate-commit-msg": "~1.0.0",
+    "conventional-changelog": "~0.5.3",
+    "istanbul": "~0.4.1"
   },
   "repository": {
     "type": "git",

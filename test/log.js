@@ -21,24 +21,53 @@ describe('log', function() {
   });
 
 
-  it('默认log level为error', function() {
-    log.level.should.be.equal('error');
+  it('default log level = warn', function() {
+    log.level.should.be.equal('warn');
   });
 
 
-  it('log.level=info时, log.info有输出', function() {
+  it('test on log.level=info', function() {
     log.level = 'info';
 
     log.info('hello');
     log.handler.called.should.be.true();
+
+    log.handler.reset();
+
+    log.warn('world');
+    log.handler.called.should.be.true();
+
+    log.handler.reset();
+
+    log.debug('my');
+    log.handler.called.should.be.false();
+
+    log.handler.reset();
+
+    log.error('some error');
+    log.handler.called.should.be.true();
   });
 
 
-  it('log.level=error时, log.info不输出', function() {
-    log.level = 'info';
+  it('test on log.level=warn', function() {
+    log.level = 'warn';
 
     log.debug('hello');
-
     log.handler.called.should.be.false();
+
+    log.handler.reset();
+
+    log.warn('world');
+    log.handler.called.should.be.true();
+
+    log.handler.reset();
+
+    log.info('loader');
+    log.handler.called.should.be.false();
+
+    log.handler.reset();
+
+    log.error('some error');
+    log.handler.called.should.be.true();
   });
 });

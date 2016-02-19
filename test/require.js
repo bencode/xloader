@@ -138,7 +138,8 @@ function stub(loader) {
     const id = options.id;
     setTimeout(function() {
       if (id === 'not-exists') {
-        return cb();
+        cb();
+        return;
       }
 
       loader.define(id, function() {

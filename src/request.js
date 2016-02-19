@@ -7,8 +7,6 @@ const log = require('./log');
 
 
 const rFile = /\.\w+(\?|$)/;
-const isBrowser = typeof window !== 'undefined' &&
-        typeof document !== 'undefined';
 
 
 module.exports = klass({
@@ -24,7 +22,7 @@ module.exports = klass({
       return handler(options, callback);
     }
 
-    if (!isBrowser) {
+    if (!util.isBrowser) {
       throw new Error('requestHandler not exists');
     }
 

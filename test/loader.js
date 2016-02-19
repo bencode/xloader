@@ -58,6 +58,7 @@ describe('loader', function() {
       if (/^t\./.test(id)) {
         return id.replace(/^t\./, 'test.');
       }
+      return null;
     });
 
     x.define('module/a', 'module a');
@@ -72,14 +73,16 @@ describe('loader', function() {
     const x = new Loader('xloader');
     x.config('resolve', function(id) {
       if (/^lang\//.test(id)) {
-        return '/butterfly/lib/' + id + '.js';
+        return '/xloader/lib/' + id + '.js';
       }
+      return null;
     });
 
     x.config('resolve', function(id) {
       if (/^lofty\//.test(id)) {
         return '/' + id + '.js';
       }
+      return null;
     });
 
     const Request = require('../src/request');
@@ -95,8 +98,9 @@ describe('loader', function() {
     x.resolve('lofty/ui/simple').should.be.equal('/lofty/ui/simple.js');
 
     x.require(['lang/class', 'lofty/ui/tab'], function(_, tag) {
-      _.should.be.equal('/butterfly/lib/lang/class.js');
+      _.should.be.equal('/xloader/lib/lang/class.js');
       tag.should.be.equal('/lofty/ui/tab.js');
+      Request.prototype.handle.restore();
       done();
     });
   });
@@ -145,6 +149,7 @@ describe('loader', function() {
       if (id === 'c') {
         return '/assets/c.js';
       }
+      return null;
     });
 
     x.hasDefine('a').should.be.true();
@@ -164,6 +169,7 @@ describe('loader', function() {
 
 
   it('debug模式下, 会产生几个方便调试的对象', function() {
+    const last = log.level;
     log.level = 'debug';
     sinon.stub(log, 'debug');
 
@@ -172,7 +178,7 @@ describe('loader', function() {
     x._define.should.not.be.undefined();
     x._require.should.not.be.undefined();
 
-    log.level = 'error';
+    log.level = last;
     log.debug.restore();
   });
 
@@ -187,6 +193,7 @@ describe('loader', function() {
     x.require('one', function(one) {
       (one === null).should.be.true();
       log.error.args[0].should.match(/compile error/);
+      log.error.restore();
       done();
     });
   });

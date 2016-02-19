@@ -29,15 +29,11 @@ exports.each = function(iter, fn) {
 
   if (isArrayLike) {
     for (let i = 0; i < len; i++) {
-      if (fn(i, iter[i]) === false) {
-        break;
-      }
+      fn(i, iter[i]);
     }
   } else {
     for (const k in iter) {
-      if (fn(k, iter[k]) === false) {
-        break;
-      }
+      fn(k, iter[k]);
     }
   }
 };
@@ -84,11 +80,20 @@ exports.when = function(works, fn) {
 
   check();
   exports.each(works, function(index, work) {
+    let flag = false;
     work(function(ret) {
+      if (flag) {
+        return;
+      }
+      flag = true;
       results[index] = ret;
       count++;
       check();
     });
   });
 };
+
+
+exports.isBrowser = typeof window !== 'undefined' &&
+    typeof document !== 'undefined';
 

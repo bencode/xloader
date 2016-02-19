@@ -77,5 +77,6 @@ describe('define', function() {
     x.define('test/hello', 'hello world');
     x.define('test/hello', 'hello world');
     log.warn.called.should.be.true();
+    log.warn.restore();
   });
 });

@@ -1,8 +1,8 @@
-butterfly-loader
+xloader
 ====
 
-[![Build Status](https://travis-ci.org/bencode/butterfly-loader.svg?branch=master)](https://travis-ci.org/bencode/butterfly-loader)
-[![Coverage Status](https://coveralls.io/repos/bencode/butterfly-loader/badge.svg?branch=master&service=github)](https://coveralls.io/github/bencode/butterfly-loader?branch=master)
+[![Build Status](https://travis-ci.org/bencode/xloader.svg?branch=master)](https://travis-ci.org/bencode/xloader)
+[![Coverage Status](https://coveralls.io/repos/bencode/xloader/badge.svg?branch=master&service=github)](https://coveralls.io/github/bencode/xloader?branch=master)
 
 
 一个精致实用的Javascript AMD模块加载器，可用于NodeJs环境和浏览器环境。
@@ -15,7 +15,7 @@ butterfly-loader
 
 
 ```html
-<script src="${path-to-butterfly}/dist/butterfly.min.js"></script>
+<script src="${path-to-xloader}/dist/xloader.min.js"></script>
 ```
 
 ## API
@@ -39,7 +39,11 @@ define(factory)
 ```
 
 
-###  butterfly.config(name, value) - 配置加载器
+### require(ids, callback) - 加载模块
+
+
+
+### xloader.config(name, value) - 配置加载器
 
 用于设置和获取config
 
@@ -54,7 +58,7 @@ loader.config(name, value)
 ### 配置resolve
 
 ```js
-butterfly.config('alias', {
+xloader.config('alias', {
   'util-request', 'util/request'
 });
 ```
@@ -62,7 +66,7 @@ butterfly.config('alias', {
 alias也可以是一个function
 
 ```js
-butterfly.config('alias', function(id) {
+xloader.config('alias', function(id) {
   if (id.startsWith('ui-')) {
     return 'ui/' + id;
   }
@@ -73,17 +77,17 @@ butterfly.config('alias', function(id) {
 
 
 ```js
-butterfly.config('resolve', function(id) {
+xloader.config('resolve', function(id) {
   return '/assets/' + id + '.js';
 });
 ```
 
-### butterfly.new(namespace, [options]) -> Loader
+### xloader.new(namespace, [options]) -> Loader
 
 定义一个新的loader
 
 ```js
-window.x = butterfly.new('x', { autoloadAnonymous: true });
+window.x = xloader.new('x', { autoloadAnonymous: true });
 ```
 
 然后就可以使用x加载器了
@@ -127,12 +131,12 @@ x.require(['util'], function(util) {
 解析模块远程地址
 
 
-### butterfly.noConflict(deep)
+### xloader.noConflict(deep)
 
-默认情况下，加载器会占有`butterfly`和`define`两个全局变量，如果有冲突时可以使用这个方法解决
+默认情况下，加载器会占有`xloader`, `define`, `require`三个全局变量，如果有冲突时可以使用这个方法解决
 
 ```js
-window.x = butterfly.noConflict();
+window.x = xloader.noConflict();
 define(...)     // 这个就是原来的define
 x.define(...)   // 现在就可以使用x来定义和加载模块了
 ```

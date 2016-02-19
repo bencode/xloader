@@ -6,9 +6,16 @@ const util = require('../src/util');
 
 describe('util', function() {
   it('isArray', function() {
-    util.isArray([1, 2, 3]).should.be.true();
-    util.isArray('123').should.be.false();
-    util.isArray(arguments).should.be.false();
+    const isArray = Array.isArray;
+    Array.isArray = null;
+    const path = require.resolve('../src/util');
+    delete require.cache[path];
+    const t = require(path);
+    Array.isArray = isArray;
+
+    t.isArray([1, 2, 3]).should.be.true();
+    t.isArray('123').should.be.false();
+    t.isArray(arguments).should.be.false();
   });
 
 
@@ -44,6 +51,7 @@ describe('util', function() {
       if (i > 1) {
         return v * 2;
       }
+      return undefined;
     });
 
     list.should.be.eql([6, 8, 10]);
@@ -87,6 +95,7 @@ describe('util', function() {
       works.push(function(fn) {  // eslint-disable-line
         setTimeout(function() {
           fn(k);
+          fn(k);    // will ignore
         }, 100);
       });
     }
@@ -98,5 +107,10 @@ describe('util', function() {
 
       done();
     });
+  });
+
+
+  it('isBrowser', function() {
+    util.isBrowser.should.be.false();
   });
 });

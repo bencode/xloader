@@ -8,14 +8,14 @@ const Loader = require('./loader');
 /* eslint no-underscore-dangle: 0 */
 
 
-const butterfly = module.exports = {};
+const loader = module.exports = {};
 
-butterfly.new = function(namespace, options) {
+loader.new = function(namespace, options) {
   return new Loader(namespace, options);
 };
 
 
-const gloader = butterfly.new('butterfly', { autoloadAnonymous: true });
+const x = loader.new('x', { autoloadAnonymous: true });
 
 
 const methods = [
@@ -25,25 +25,30 @@ const methods = [
 
 
 util.each(methods, function(index, name) {
-  butterfly[name] = gloader[name];
+  loader[name] = x[name];
 });
 
 
-butterfly.define('global', function() {
+x.define('global', function() {
   return global;
 });
 
 
-const originDefine = global.define;
-const originButterfly = global.butterfly;
+if (util.isBrowser) {
+  const originDefine = global.define;
+  const originRequire = global.require;
+  const originLoader = global.xloader;
 
-butterfly.noConflict = function(deep) {
-  global.define = originDefine;
-  if (deep) {
-    global.butterfly = originButterfly;
-  }
-  return butterfly;
-};
+  loader.noConflict = function(deep) {
+    global.define = originDefine;
+    global.require = originRequire;
+    if (deep) {
+      global.xloader = originLoader;
+    }
+    return loader;
+  };
 
-
-global.define = butterfly.define;
+  global.xloader = loader;
+  global.define = loader.define;
+  global.require = loader.require;
+}

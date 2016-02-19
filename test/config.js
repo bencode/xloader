@@ -8,8 +8,8 @@ describe('config', function() {
   it('设置和获取配置', function() {
     const config = new Config();
 
-    config.set('root', '/butterfly');
-    config.get('root').should.be.equal('/butterfly');
+    config.set('root', '/xloader');
+    config.get('root').should.be.equal('/xloader');
 
     config.get('alias').should.be.eql([]);
 

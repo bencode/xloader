@@ -1,4 +1,4 @@
-var butterfly =
+var xloader =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -52,36 +52,44 @@ var butterfly =
 
 	/* eslint no-underscore-dangle: 0 */
 
-	var butterfly = module.exports = {};
+	var loader = module.exports = {};
 
-	butterfly.new = function (namespace, options) {
+	loader.new = function (namespace, options) {
 	  return new Loader(namespace, options);
 	};
 
-	var gloader = butterfly.new('butterfly', { autoloadAnonymous: true });
+	var x = loader.new('x', { autoloadAnonymous: true });
 
 	var methods = ['config', 'on', 'off', 'define', 'require', 'hasDefine', 'getModules', 'resolve', 'undefine'];
 
 	util.each(methods, function (index, name) {
-	  butterfly[name] = gloader[name];
+	  loader[name] = x[name];
 	});
 
-	butterfly.define('global', function () {
+	x.define('global', function () {
 	  return global;
 	});
 
-	var originDefine = global.define;
-	var originButterfly = global.butterfly;
+	if (util.isBrowser) {
+	  (function () {
+	    var originDefine = global.define;
+	    var originRequire = global.require;
+	    var originLoader = global.xloader;
 
-	butterfly.noConflict = function (deep) {
-	  global.define = originDefine;
-	  if (deep) {
-	    global.butterfly = originButterfly;
-	  }
-	  return butterfly;
-	};
+	    loader.noConflict = function (deep) {
+	      global.define = originDefine;
+	      global.require = originRequire;
+	      if (deep) {
+	        global.xloader = originLoader;
+	      }
+	      return loader;
+	    };
 
-	global.define = butterfly.define;
+	    global.xloader = loader;
+	    global.define = loader.define;
+	    global.require = loader.require;
+	  })();
+	}
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
@@ -113,15 +121,11 @@ var butterfly =
 
 	  if (isArrayLike) {
 	    for (var i = 0; i < len; i++) {
-	      if (fn(i, iter[i]) === false) {
-	        break;
-	      }
+	      fn(i, iter[i]);
 	    }
 	  } else {
 	    for (var k in iter) {
-	      if (fn(k, iter[k]) === false) {
-	        break;
-	      }
+	      fn(k, iter[k]);
 	    }
 	  }
 	};
@@ -163,13 +167,20 @@ var butterfly =
 
 	  check();
 	  exports.each(works, function (index, work) {
+	    var flag = false;
 	    work(function (ret) {
+	      if (flag) {
+	        return;
+	      }
+	      flag = true;
 	      results[index] = ret;
 	      count++;
 	      check();
 	    });
 	  });
 	};
+
+	exports.isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
 
 /***/ },
 /* 2 */
@@ -328,22 +339,13 @@ var butterfly =
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+	'use strict';
 
 	/* eslint no-console: 0 */
 
 	var util = __webpack_require__(1);
 
 	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
-
-	/* eslint complexity: [2, 10] */
-	var level = function () {
-	  var loc = global.location || {};
-	  var env = (global.process || {}).env || {};
-	  var search = loc.search || '';
-	  var match = /\bdebug-log-level=(\w+)/.exec(search);
-	  return match && match[1] || global.debugLogLevel || env.DEBUG_LOG_LEVEL || 'error';
-	}();
 
 	module.exports = log;
 
@@ -357,7 +359,7 @@ var butterfly =
 	  }
 	}
 
-	log.level = level;
+	log.level = 'warn';
 	log.isEnabled = function (type) {
 	  return LEVEL[type] <= LEVEL[log.level];
 	};
@@ -368,14 +370,11 @@ var butterfly =
 	  };
 	});
 
-	var console = global.console;
-
-	log.handler = console ? function (type, args) {
+	log.handler = typeof console !== 'undefined' ? function (type, args) {
 	  if (console[type]) {
 	    console[type].apply(console, args);
 	  }
 	} : function () {};
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
 /* 4 */
@@ -759,7 +758,6 @@ var butterfly =
 	var log = __webpack_require__(3);
 
 	var rFile = /\.\w+(\?|$)/;
-	var isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
 
 	module.exports = klass({
 	  init: function init(loader) {
@@ -773,7 +771,7 @@ var butterfly =
 	      return handler(options, callback);
 	    }
 
-	    if (!isBrowser) {
+	    if (!util.isBrowser) {
 	      throw new Error('requestHandler not exists');
 	    }
 

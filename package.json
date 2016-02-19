@@ -1,6 +1,6 @@
 {
-  "name": "butterfly-loader",
-  "version": "3.0.3",
+  "name": "xloader",
+  "version": "3.1.0",
   "description": "An AMD javascript loader can be used in both in node & browse env.",
   "keywords": [
     "AMD",
@@ -9,12 +9,12 @@
   "main": "dist/node.js",
   "scripts": {
     "lint": "node_modules/.bin/eslint lib test",
-    "test": "node_modules/.bin/_mocha --require 'should' --reporter spec --recursive --bail --check-leaks test/",
+    "test": "node_modules/.bin/mocha --require 'should' --reporter spec --recursive --bail --check-leaks test/",
     "cov": "node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- -u exports --require 'should' --recursive --bail --check-leaks test/",
     "travis": "node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha --report lcovonly -- -u exports --require 'should' --recursive --bail --check-leaks test/",
     "ci": "tnpm run lint && tnpm run test && tnpm run cov",
     "webpack-build": "node_modules/.bin/webpack",
-    "uglify": "node_modules/.bin/uglifyjs dist/butterfly.js -o dist/butterfly.min.js --source-map dist/butterfly.min.js.map",
+    "uglify": "node_modules/.bin/uglifyjs dist/xloader.js -o dist/xloader.min.js --source-map dist/xloader.min.js.map",
     "build": "npm run webpack-build && npm run uglify",
     "changelog": "node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -w",
     "server": "node_modules/.bin/webpack-dev-server --content-base .",
@@ -30,25 +30,26 @@
   "dependencies": {
   },
   "devDependencies": {
-    "babel-core": "~6.4.0",
+    "babel-core": "~6.5.2",
     "babel-loader": "~6.2.1",
-    "babel-preset-es2015": "~6.3.13",
-    "eslint": "~1.10.3",
-    "eslint-config-bce": "~0.5.0",
+    "babel-preset-es2015": "~6.5.0",
+    "eslint": "~2.1.0",
+    "eslint-config-bce": "~1.0.0",
     "jasmine": "~2.4.1",
-    "mocha": "~2.3.4",
-    "should": "~8.0.2",
+    "mocha": "~2.4.5",
+    "should": "~8.2.2",
     "sinon": "~1.17.2",
     "uglify-js": "~2.6.1",
     "webpack": "~1.12.10",
     "webpack-dev-server": "~1.14.0",
     "ghooks": "~1.0.3",
-    "validate-commit-msg": "~1.0.0",
-    "conventional-changelog": "~0.5.3",
+    "validate-commit-msg": "~2.0.0",
+    "conventional-changelog-cli": "~1.1.1",
     "istanbul": "~0.4.1"
   },
+  "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git@github.com:bencode/butterfly-loader.git"
+    "url": "git@github.com:bencode/xloader.git"
   }
 }

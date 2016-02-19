@@ -8,9 +8,9 @@ module.exports = {
   entry: './src/index.js',
 
   output: {
-    library: 'butterfly',
+    library: 'xloader',
     path: pathUtil.join(__dirname, 'dist'),
-    filename: 'butterfly.js'
+    filename: 'xloader.js'
   },
 
   module: {

@@ -10,17 +10,6 @@ const util = require('./util');
 const LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
 
 
-/* eslint complexity: [2, 10] */
-const level = (function() {
-  const loc = global.location || {};
-  const env = (global.process || {}).env || {};
-  const search = loc.search || '';
-  const match = (/\bdebug-log-level=(\w+)/).exec(search);
-  return match && match[1] ||
-      global.debugLogLevel || env.DEBUG_LOG_LEVEL || 'error';
-})();
-
-
 module.exports = log;
 
 
@@ -35,7 +24,7 @@ function log(type, args) {
 }
 
 
-log.level = level;
+log.level = 'warn';
 log.isEnabled = function(type) {
   return LEVEL[type] <= LEVEL[log.level];
 };
@@ -49,9 +38,7 @@ util.each(LEVEL, function(type) {
 });
 
 
-const console = global.console;
-
-log.handler = console ? function(type, args) {
+log.handler = typeof console !== 'undefined' ? function(type, args) {
   if (console[type]) {
     console[type].apply(console, args);
   }

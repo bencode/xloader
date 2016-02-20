@@ -28,6 +28,24 @@ describe('require', function() {
   });
 
 
+  it('相对路径', function(done) {
+    const loader = create();
+    loader.define('lib/util/a',
+    ['./b', '../core/c', '../d'], function(b, c, d) {
+      return [b, c, d];
+    });
+
+    loader.define('lib/util/b', 'module b');
+    loader.define('lib/core/c', 'module c');
+    loader.define('lib/d', 'module d');
+
+    loader.require('lib/util/a', function(a) {
+      a.should.be.eql(['module b', 'module c', 'module d']);
+      done();
+    });
+  });
+
+
   describe('使用require载入异步模块', function() {
     const loader = create();
     stub(loader);

@@ -69,28 +69,24 @@ exports.guid = function() {
 };
 
 
-exports.when = function(works, fn) {
-  const results = [];
-  const n = works.length;
-  let count = 0;
+const rParent = /([-\w]+\/\.\.\/)/g;
+const rCurrent = /([^.])\.\//g;
 
-  const check = function() {
-    count >= n && fn(results);
-  };
+exports.join = function(parent, path) {
+  path = parent + '/' + path;
+  path = path.replace(rCurrent, '$1');
+  while (rParent.test(path)) {
+    path = path.replace(rParent, '');
+  }
+  return path;
+};
 
-  check();
-  exports.each(works, function(index, work) {
-    let flag = false;
-    work(function(ret) {
-      if (flag) {
-        return;
-      }
-      flag = true;
-      results[index] = ret;
-      count++;
-      check();
-    });
-  });
+
+const rLastSlash = /\/$/;
+exports.dirname = function(path) {
+  path = path.replace(rLastSlash, '');
+  const pos = path.lastIndexOf('/');
+  return pos === -1 ? '' : path.substr(0, pos);
 };
 
 

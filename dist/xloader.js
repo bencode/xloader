@@ -45,10 +45,11 @@ var xloader =
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+	/* WEBPACK VAR INJECTION */(function(global, process) {'use strict';
 
-	var util = __webpack_require__(1);
-	var Loader = __webpack_require__(2);
+	var util = __webpack_require__(2);
+	var log = __webpack_require__(3);
+	var Loader = __webpack_require__(4);
 
 	/* eslint no-underscore-dangle: 0 */
 
@@ -90,10 +91,114 @@ var xloader =
 	    global.require = loader.require;
 	  })();
 	}
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+	var isDebug = util.isBrowser ? /\debug-xloader\b/.test(window.location.search) : // eslint-disable-line
+	process.env.DEBUG === 'xloader'; // eslint-disable-line
+
+	if (isDebug) {
+	  log.level = 'debug';
+	}
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(1)))
 
 /***/ },
 /* 1 */
+/***/ function(module, exports) {
+
+	// shim for using process in browser
+
+	var process = module.exports = {};
+	var queue = [];
+	var draining = false;
+	var currentQueue;
+	var queueIndex = -1;
+
+	function cleanUpNextTick() {
+	    draining = false;
+	    if (currentQueue.length) {
+	        queue = currentQueue.concat(queue);
+	    } else {
+	        queueIndex = -1;
+	    }
+	    if (queue.length) {
+	        drainQueue();
+	    }
+	}
+
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    var timeout = setTimeout(cleanUpNextTick);
+	    draining = true;
+
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        while (++queueIndex < len) {
+	            if (currentQueue) {
+	                currentQueue[queueIndex].run();
+	            }
+	        }
+	        queueIndex = -1;
+	        len = queue.length;
+	    }
+	    currentQueue = null;
+	    draining = false;
+	    clearTimeout(timeout);
+	}
+
+	process.nextTick = function (fun) {
+	    var args = new Array(arguments.length - 1);
+	    if (arguments.length > 1) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            args[i - 1] = arguments[i];
+	        }
+	    }
+	    queue.push(new Item(fun, args));
+	    if (queue.length === 1 && !draining) {
+	        setTimeout(drainQueue, 0);
+	    }
+	};
+
+	// v8 likes predictible objects
+	function Item(fun, array) {
+	    this.fun = fun;
+	    this.array = array;
+	}
+	Item.prototype.run = function () {
+	    this.fun.apply(null, this.array);
+	};
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+
+	function noop() {}
+
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+/* 2 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -156,46 +261,82 @@ var xloader =
 	  return guid++;
 	};
 
-	exports.when = function (works, fn) {
-	  var results = [];
-	  var n = works.length;
-	  var count = 0;
+	var rParent = /([-\w]+\/\.\.\/)/g;
+	var rCurrent = /([^.])\.\//g;
 
-	  var check = function check() {
-	    count >= n && fn(results);
-	  };
+	exports.join = function (parent, path) {
+	  path = parent + '/' + path;
+	  path = path.replace(rCurrent, '$1');
+	  while (rParent.test(path)) {
+	    path = path.replace(rParent, '');
+	  }
+	  return path;
+	};
 
-	  check();
-	  exports.each(works, function (index, work) {
-	    var flag = false;
-	    work(function (ret) {
-	      if (flag) {
-	        return;
-	      }
-	      flag = true;
-	      results[index] = ret;
-	      count++;
-	      check();
-	    });
-	  });
+	var rLastSlash = /\/$/;
+	exports.dirname = function (path) {
+	  path = path.replace(rLastSlash, '');
+	  var pos = path.lastIndexOf('/');
+	  return pos === -1 ? '' : path.substr(0, pos);
 	};
 
 	exports.isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var util = __webpack_require__(1);
+	/* eslint no-console: 0 */
+
+	var util = __webpack_require__(2);
+
+	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
+
+	module.exports = log;
+
+	var slice = [].slice;
+
+	function log(type, args) {
+	  if (log.isEnabled(type)) {
+	    args = slice.call(args, 0);
+	    args[0] = '[loader] ' + args[0];
+	    log.handler(type, args);
+	  }
+	}
+
+	log.level = 'warn';
+	log.isEnabled = function (type) {
+	  return LEVEL[type] <= LEVEL[log.level];
+	};
+
+	util.each(LEVEL, function (type) {
+	  log[type] = function () {
+	    log(type, arguments);
+	  };
+	});
+
+	log.handler = typeof console !== 'undefined' ? function (type, args) {
+	  if (console[type]) {
+	    console[type].apply(console, args);
+	  }
+	} : function () {};
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var util = __webpack_require__(2);
 	var log = __webpack_require__(3);
-	var klass = __webpack_require__(4);
-	var Event = __webpack_require__(5);
-	var Config = __webpack_require__(6);
-	var Define = __webpack_require__(7);
-	var Require = __webpack_require__(8);
-	var Request = __webpack_require__(9);
+	var klass = __webpack_require__(5);
+	var Event = __webpack_require__(6);
+	var Config = __webpack_require__(7);
+	var Define = __webpack_require__(8);
+	var Require = __webpack_require__(9);
+	var Request = __webpack_require__(10);
 
 	module.exports = klass({
 	  init: function init(namespace, options) {
@@ -336,53 +477,12 @@ var xloader =
 	}
 
 /***/ },
-/* 3 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	/* eslint no-console: 0 */
-
-	var util = __webpack_require__(1);
-
-	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
-
-	module.exports = log;
-
-	var slice = [].slice;
-
-	function log(type, args) {
-	  if (log.isEnabled(type)) {
-	    args = slice.call(args, 0);
-	    args[0] = '[loader] ' + args[0];
-	    log.handler(type, args);
-	  }
-	}
-
-	log.level = 'warn';
-	log.isEnabled = function (type) {
-	  return LEVEL[type] <= LEVEL[log.level];
-	};
-
-	util.each(LEVEL, function (type) {
-	  log[type] = function () {
-	    log(type, arguments);
-	  };
-	});
-
-	log.handler = typeof console !== 'undefined' ? function (type, args) {
-	  if (console[type]) {
-	    console[type].apply(console, args);
-	  }
-	} : function () {};
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var util = __webpack_require__(1);
+	var util = __webpack_require__(2);
 
 	module.exports = function (proto) {
 	  var klass = function klass() {
@@ -396,7 +496,7 @@ var xloader =
 	};
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -451,12 +551,12 @@ var xloader =
 	//~
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var klass = __webpack_require__(4);
+	var klass = __webpack_require__(5);
 	var log = __webpack_require__(3);
 
 	var listFields = { alias: true, resolve: true };
@@ -484,14 +584,14 @@ var xloader =
 	});
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var util = __webpack_require__(1);
+	var util = __webpack_require__(2);
 	var log = __webpack_require__(3);
-	var klass = __webpack_require__(4);
+	var klass = __webpack_require__(5);
 
 	module.exports = klass({
 	  init: function init(loader) {
@@ -554,13 +654,13 @@ var xloader =
 	}
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var klass = __webpack_require__(4);
-	var util = __webpack_require__(1);
+	var klass = __webpack_require__(5);
+	var util = __webpack_require__(2);
 	var log = __webpack_require__(3);
 
 	var assert = util.assert;
@@ -621,39 +721,64 @@ var xloader =
 	}
 	//~ load
 
+	var rRelative = /^\.\.?\//;
+
 	function loadDepends(self, module, callback) {
 	  var loader = self.loader;
 	  var modules = loader.modules;
-	  var aliasCache = self.aliasCache;
 
 	  var depends = module.depends;
 	  if (depends.length === 0) {
 	    return callback();
 	  }
 
-	  var adepends = module.adepends = depends.slice(0);
-	  log.debug('load depends: ', adepends);
-
-	  var works = util.map(depends, function (index, id) {
-	    return function (fn) {
-	      var aid = aliasCache[id] || loader.trigger('alias', id);
-	      if (aid && id !== aid) {
-	        log.debug('alias ' + id + ' -> ' + aid);
-	        id = aid;
-	        aliasCache[id] = id;
-	        adepends[index] = id;
-	      }
-
-	      var o = modules[id];
-	      var cb = function cb(lo) {
-	        load(self, lo, fn);
-	      };
-
-	      o ? cb(o) : loadAsync(self, id, cb);
-	    };
+	  var adepends = module.adepends = [];
+	  var rpath = util.dirname(module.id);
+	  util.each(depends, function (index, id) {
+	    adepends[index] = rRelative.test(id) ? util.join(rpath, id) : id;
 	  });
 
-	  util.when(works, callback);
+	  log.debug('try load depends: ', adepends);
+
+	  // 并行加载依赖模块
+	  var n = adepends.length;
+	  var count = 0;
+
+	  var aliasCache = self.aliasCache;
+
+	  util.each(adepends, function (index, id) {
+	    var aid = aliasCache[id] || loader.trigger('alias', id);
+	    if (aid && id !== aid) {
+	      log.debug('alias ' + id + ' -> ' + aid);
+	      id = aid;
+	      aliasCache[id] = id;
+	      adepends[index] = id;
+	    }
+
+	    var called = false;
+	    var cb = function cb() {
+	      // istanbul ignore if
+	      if (called) {
+	        log.error('depend already loaded: ' + id);
+	        return;
+	      }
+	      called = true;
+	      count++;
+	      count >= n && callback();
+	    };
+
+	    // 依赖的模块不需要异步加载
+	    var o = modules[id];
+	    if (o) {
+	      load(self, o, cb);
+	      return;
+	    }
+
+	    // 依赖的模块是异步加载
+	    loadAsync(self, id, function (lo) {
+	      load(self, lo, cb);
+	    });
+	  });
 	}
 	//~ loadDepends
 
@@ -748,13 +873,13 @@ var xloader =
 	//~ loadAsync
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var klass = __webpack_require__(4);
-	var util = __webpack_require__(1);
+	var klass = __webpack_require__(5);
+	var util = __webpack_require__(2);
 	var log = __webpack_require__(3);
 
 	var rFile = /\.\w+(\?|$)/;
@@ -799,13 +924,13 @@ var xloader =
 	    };
 
 	    log.debug('request assets: ' + url, options);
-	    var assets = __webpack_require__(10);
+	    var assets = __webpack_require__(11);
 	    assets.load(url, opts);
 	  }
 	});
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

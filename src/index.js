@@ -2,6 +2,7 @@
 
 
 const util = require('./util');
+const log = require('./log');
 const Loader = require('./loader');
 
 
@@ -51,4 +52,13 @@ if (util.isBrowser) {
   global.xloader = loader;
   global.define = loader.define;
   global.require = loader.require;
+}
+
+
+const isDebug = util.isBrowser ?
+    (/\debug-xloader\b/).test(window.location.search) :   // eslint-disable-line
+    process.env.DEBUG === 'xloader';    // eslint-disable-line
+
+if (isDebug) {
+  log.level = 'debug';
 }

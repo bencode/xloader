@@ -21,8 +21,12 @@ describe('log', function() {
   });
 
 
-  it('default log level = warn', function() {
-    log.level.should.be.equal('warn');
+  it('default log level', function() {
+    if (process.env.DEBUG === 'xloader') { // eslint-disable-line
+      log.level.should.be.equal('debug');
+    } else {
+      log.level.should.be.equal('warn');
+    }
   });
 
 

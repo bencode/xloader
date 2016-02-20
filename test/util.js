@@ -88,25 +88,18 @@ describe('util', function() {
   });
 
 
-  it('when', function(done) {
-    const works = [];
-    for (let i = 0; i < 5; i++) {
-      const k = i + 1;
-      works.push(function(fn) {  // eslint-disable-line
-        setTimeout(function() {
-          fn(k);
-          fn(k);    // will ignore
-        }, 100);
-      });
-    }
+  it('dirname', function() {
+    util.dirname('lang/core').should.be.equal('lang');
+    util.dirname('hello/abcd/').should.be.equal('hello');
+    util.dirname('hi').should.be.equal('');
+  });
 
-    util.when(works, function(list) {
-      for (let i = 0; i < 5; i++) {
-        list[i].should.be.equal(i + 1);
-      }
 
-      done();
-    });
+  it('join', function() {
+    util.join('aaa/bbb/ccc', '.././.././zzz')
+        .should.be.equal('aaa/zzz');
+
+    util.join('aaa', 'bbb').should.be.equal('aaa/bbb');
   });
 
 

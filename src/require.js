@@ -69,39 +69,66 @@ function load(self, module, callback) {
 //~ load
 
 
+const rRelative = /^\.\.?\//;
+
+
 function loadDepends(self, module, callback) {
   const loader = self.loader;
   const modules = loader.modules;
-  const aliasCache = self.aliasCache;
 
   const depends = module.depends;
   if (depends.length === 0) {
     return callback();
   }
 
-  const adepends = module.adepends = depends.slice(0);
-  log.debug('load depends: ', adepends);
-
-  const works = util.map(depends, function(index, id) {
-    return function(fn) {
-      const aid = aliasCache[id] || loader.trigger('alias', id);
-      if (aid && id !== aid) {
-        log.debug('alias ' + id + ' -> ' + aid);
-        id = aid;
-        aliasCache[id] = id;
-        adepends[index] = id;
-      }
-
-      const o = modules[id];
-      const cb = function(lo) {
-        load(self, lo, fn);
-      };
-
-      o ? cb(o) : loadAsync(self, id, cb);
-    };
+  const adepends = module.adepends = [];
+  const rpath = util.dirname(module.id);
+  util.each(depends, function(index, id) {
+    adepends[index] = rRelative.test(id) ? util.join(rpath, id) : id;
   });
 
-  util.when(works, callback);
+
+  log.debug('try load depends: ', adepends);
+
+  // 并行加载依赖模块
+  const n = adepends.length;
+  let count = 0;
+
+  const aliasCache = self.aliasCache;
+
+  util.each(adepends, function(index, id) {
+    const aid = aliasCache[id] || loader.trigger('alias', id);
+    if (aid && id !== aid) {
+      log.debug('alias ' + id + ' -> ' + aid);
+      id = aid;
+      aliasCache[id] = id;
+      adepends[index] = id;
+    }
+
+    let called = false;
+    const cb = function() {
+      // istanbul ignore if
+      if (called) {
+        log.error('depend already loaded: ' + id);
+        return;
+      }
+      called = true;
+      count++;
+      count >= n && callback();
+    };
+
+    // 依赖的模块不需要异步加载
+    const o = modules[id];
+    if (o) {
+      load(self, o, cb);
+      return;
+    }
+
+    // 依赖的模块是异步加载
+    loadAsync(self, id, function(lo) {
+      load(self, lo, cb);
+    });
+  });
 }
 //~ loadDepends
 

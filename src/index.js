@@ -49,6 +49,8 @@ if (util.isBrowser) {
     return loader;
   };
 
+  loader.assets = require('./assets');
+
   global.xloader = loader;
   global.define = loader.define;
   global.require = loader.require;

@@ -86,6 +86,8 @@ var xloader =
 	      return loader;
 	    };
 
+	    loader.assets = __webpack_require__(11);
+
 	    global.xloader = loader;
 	    global.define = loader.define;
 	    global.require = loader.require;

@@ -11,27 +11,21 @@ const log = require('../src/log');
 describe('log', function() {
   beforeEach(function() {
     this.lastLevel = log.level;
+    this.lastFilter = log.filter;
     sinon.spy(log, 'handler');
   });
 
 
   afterEach(function() {
     log.level = this.lastLevel;
+    log.filter = this.lastFilter;
     log.handler.restore();
-  });
-
-
-  it('default log level', function() {
-    if (process.env.DEBUG === 'xloader') { // eslint-disable-line
-      log.level.should.be.equal('debug');
-    } else {
-      log.level.should.be.equal('warn');
-    }
   });
 
 
   it('test on log.level=info', function() {
     log.level = 'info';
+    log.filter = false;
 
     log.info('hello');
     log.handler.called.should.be.true();
@@ -55,6 +49,7 @@ describe('log', function() {
 
   it('test on log.level=warn', function() {
     log.level = 'warn';
+    log.filter = false;
 
     log.debug('hello');
     log.handler.called.should.be.false();

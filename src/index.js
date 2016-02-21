@@ -57,12 +57,3 @@ if (process.browser) {
   global.define = loader.define;
   global.require = loader.require;
 }
-
-
-const isDebug = process.browser ?
-    (/\bdebug-xloader\b/).test(window.location.search) :   // eslint-disable-line
-    process.env.DEBUG === 'xloader';    // eslint-disable-line
-
-if (isDebug) {
-  log.level = 'debug';
-}

@@ -48,7 +48,7 @@ var xloader =
 	/* WEBPACK VAR INJECTION */(function(global, process) {'use strict';
 
 	var util = __webpack_require__(2);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 	var Loader = __webpack_require__(19);
 
 	/* eslint no-underscore-dangle: 0 */
@@ -94,15 +94,8 @@ var xloader =
 	    global.define = loader.define;
 	    global.require = loader.require;
 	  })();
-	}
-
-	var isDebug = process.browser ? /\bdebug-xloader\b/.test(window.location.search) : // eslint-disable-line
-	process.env.DEBUG === 'xloader'; // eslint-disable-line
-
-	if (isDebug) {
-	  log.level = 'debug';
 		}
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(4)))
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(6)))
 
 /***/ },
 /* 1 */,
@@ -196,7 +189,67 @@ var xloader =
 
 /***/ },
 /* 3 */,
-/* 4 */
+/* 4 */,
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	/* eslint no-console: 0 */
+
+	var util = __webpack_require__(2);
+
+	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
+	var slice = [].slice;
+
+	var log = module.exports = {};
+
+	log.level = 'warn';
+	log.filter = false;
+
+	log.isEnabled = function (type) {
+	  return LEVEL[type] <= LEVEL[log.level];
+	};
+
+	util.each(LEVEL, function (type) {
+	  log[type] = function () {
+	    if (log.isEnabled(type)) {
+	      var args = slice.call(arguments, 0);
+	      if (!log.filter || log.filter(args[0])) {
+	        args[0] = '[loader] ' + args[0];
+	        log.handler(type, args);
+	      }
+	    }
+	  };
+	});
+
+	log.handler = typeof console !== 'undefined' ? function (type, args) {
+	  if (console[type]) {
+	    console[type].apply(console, args);
+	  }
+	} : function () {};
+
+	var filter = process.env.XLOADER_LOG; // eslint-disable-line
+	if (process.browser) {
+	  var re = /\bxloader\.log=([^&]+)/;
+	  var match = re.exec(window.location.search); // eslint-disable-line
+	  filter = match && match[1];
+	}
+
+	if (filter) {
+	  (function () {
+	    log.level = 'debug';
+	    filter = filter.replace(/([.\[\]\(\)\{\}^$\\?+])/g, '\\$1').replace(/\*/g, '.*');
+	    var rFilter = new RegExp('^' + filter + '$');
+	    log.filter = function (text) {
+	      return rFilter.test(text);
+	    };
+	  })();
+		}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
+
+/***/ },
+/* 6 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -293,50 +346,13 @@ var xloader =
 
 
 /***/ },
-/* 5 */,
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	/* eslint no-console: 0 */
-
-	var util = __webpack_require__(2);
-
-	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
-	var slice = [].slice;
-
-	var log = module.exports = {};
-
-	log.level = 'warn';
-	log.isEnabled = function (type) {
-	  return LEVEL[type] <= LEVEL[log.level];
-	};
-
-	util.each(LEVEL, function (type) {
-	  log[type] = function () {
-	    if (log.isEnabled(type)) {
-	      var args = slice.call(arguments, 0);
-	      args[0] = '[loader] ' + args[0];
-	      log.handler(type, args);
-	    }
-	  };
-	});
-
-	log.handler = typeof console !== 'undefined' ? function (type, args) {
-	  if (console[type]) {
-	    console[type].apply(console, args);
-	  }
-		} : function () {};
-
-/***/ },
 /* 7 */,
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	var slice = [].slice;
 
@@ -393,7 +409,7 @@ var xloader =
 	'use strict';
 
 	var klass = __webpack_require__(11);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	var listFields = { alias: true, resolve: true };
 
@@ -446,7 +462,7 @@ var xloader =
 	'use strict';
 
 	var util = __webpack_require__(2);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 	var klass = __webpack_require__(11);
 
 	module.exports = klass({
@@ -518,7 +534,7 @@ var xloader =
 
 	var klass = __webpack_require__(11);
 	var util = __webpack_require__(2);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	var assert = util.assert;
 
@@ -736,7 +752,7 @@ var xloader =
 
 	'use strict';
 
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	/* global window, document */
 
@@ -909,7 +925,7 @@ var xloader =
 	'use strict';
 
 	var util = __webpack_require__(2);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 	var klass = __webpack_require__(11);
 	var Event = __webpack_require__(8);
 	var Config = __webpack_require__(10);
@@ -1063,7 +1079,7 @@ var xloader =
 
 	var klass = __webpack_require__(11);
 	var util = __webpack_require__(2);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	var rFile = /\.\w+(\?|$)/;
 
@@ -1076,7 +1092,7 @@ var xloader =
 	    var loader = this.loader;
 	    var handler = loader.config('requestHandler');
 	    if (handler) {
-	      return handler(options, callback);
+	      return handler.call(loader, options, callback);
 	    }
 
 	    if (!process.browser) {
@@ -1111,7 +1127,7 @@ var xloader =
 	    assets.load(url, opts);
 	  }
 		});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
 
 /***/ }
 /******/ ]);

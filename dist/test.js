@@ -240,35 +240,29 @@ var test =
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+	'use strict';
 
-	var sinon = __webpack_require__(5);
-	var log = __webpack_require__(6);
+	var sinon = __webpack_require__(4);
+	var log = __webpack_require__(5);
 
 	/* global beforeEach, afterEach */
 
 	describe('log', function () {
 	  beforeEach(function () {
 	    this.lastLevel = log.level;
+	    this.lastFilter = log.filter;
 	    sinon.spy(log, 'handler');
 	  });
 
 	  afterEach(function () {
 	    log.level = this.lastLevel;
+	    log.filter = this.lastFilter;
 	    log.handler.restore();
-	  });
-
-	  it('default log level', function () {
-	    if (process.env.DEBUG === 'xloader') {
-	      // eslint-disable-line
-	      log.level.should.be.equal('debug');
-	    } else {
-	      log.level.should.be.equal('warn');
-	    }
 	  });
 
 	  it('test on log.level=info', function () {
 	    log.level = 'info';
+	    log.filter = false;
 
 	    log.info('hello');
 	    log.handler.called.should.be.true();
@@ -291,6 +285,7 @@ var test =
 
 	  it('test on log.level=warn', function () {
 	    log.level = 'warn';
+	    log.filter = false;
 
 	    log.debug('hello');
 	    log.handler.called.should.be.false();
@@ -311,10 +306,74 @@ var test =
 	    log.handler.called.should.be.true();
 	  });
 		});
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
 /* 4 */
+/***/ function(module, exports) {
+
+	module.exports = sinon;
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
+
+	/* eslint no-console: 0 */
+
+	var util = __webpack_require__(2);
+
+	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
+	var slice = [].slice;
+
+	var log = module.exports = {};
+
+	log.level = 'warn';
+	log.filter = false;
+
+	log.isEnabled = function (type) {
+	  return LEVEL[type] <= LEVEL[log.level];
+	};
+
+	util.each(LEVEL, function (type) {
+	  log[type] = function () {
+	    if (log.isEnabled(type)) {
+	      var args = slice.call(arguments, 0);
+	      if (!log.filter || log.filter(args[0])) {
+	        args[0] = '[loader] ' + args[0];
+	        log.handler(type, args);
+	      }
+	    }
+	  };
+	});
+
+	log.handler = typeof console !== 'undefined' ? function (type, args) {
+	  if (console[type]) {
+	    console[type].apply(console, args);
+	  }
+	} : function () {};
+
+	var filter = process.env.XLOADER_LOG; // eslint-disable-line
+	if (process.browser) {
+	  var re = /\bxloader\.log=([^&]+)/;
+	  var match = re.exec(window.location.search); // eslint-disable-line
+	  filter = match && match[1];
+	}
+
+	if (filter) {
+	  (function () {
+	    log.level = 'debug';
+	    filter = filter.replace(/([.\[\]\(\)\{\}^$\\?+])/g, '\\$1').replace(/\*/g, '.*');
+	    var rFilter = new RegExp('^' + filter + '$');
+	    log.filter = function (text) {
+	      return rFilter.test(text);
+	    };
+	  })();
+		}
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(6)))
+
+/***/ },
+/* 6 */
 /***/ function(module, exports) {
 
 	// shim for using process in browser
@@ -411,48 +470,6 @@ var test =
 
 
 /***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	module.exports = sinon;
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	/* eslint no-console: 0 */
-
-	var util = __webpack_require__(2);
-
-	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
-	var slice = [].slice;
-
-	var log = module.exports = {};
-
-	log.level = 'warn';
-	log.isEnabled = function (type) {
-	  return LEVEL[type] <= LEVEL[log.level];
-	};
-
-	util.each(LEVEL, function (type) {
-	  log[type] = function () {
-	    if (log.isEnabled(type)) {
-	      var args = slice.call(arguments, 0);
-	      args[0] = '[loader] ' + args[0];
-	      log.handler(type, args);
-	    }
-	  };
-	});
-
-	log.handler = typeof console !== 'undefined' ? function (type, args) {
-	  if (console[type]) {
-	    console[type].apply(console, args);
-	  }
-		} : function () {};
-
-/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -539,7 +556,7 @@ var test =
 
 	'use strict';
 
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	var slice = [].slice;
 
@@ -622,7 +639,7 @@ var test =
 	'use strict';
 
 	var klass = __webpack_require__(11);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	var listFields = { alias: true, resolve: true };
 
@@ -673,10 +690,10 @@ var test =
 
 	'use strict';
 
-	var sinon = __webpack_require__(5);
+	var sinon = __webpack_require__(4);
 
 	var Define = __webpack_require__(13);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	describe('define', function () {
 	  var loader = { modules: {}, trigger: function trigger() {} };
@@ -752,7 +769,7 @@ var test =
 	'use strict';
 
 	var util = __webpack_require__(2);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 	var klass = __webpack_require__(11);
 
 	module.exports = klass({
@@ -821,7 +838,7 @@ var test =
 
 	'use strict';
 
-	var sinon = __webpack_require__(5);
+	var sinon = __webpack_require__(4);
 
 	var Event = __webpack_require__(8);
 	var Define = __webpack_require__(13);
@@ -983,7 +1000,7 @@ var test =
 
 	var klass = __webpack_require__(11);
 	var util = __webpack_require__(2);
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	var assert = util.assert;
 
@@ -1247,7 +1264,7 @@ var test =
 
 	'use strict';
 
-	var log = __webpack_require__(6);
+	var log = __webpack_require__(5);
 
 	/* global window, document */
 

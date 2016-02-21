@@ -19,7 +19,7 @@ module.exports = klass({
     const loader = this.loader;
     const handler = loader.config('requestHandler');
     if (handler) {
-      return handler(options, callback);
+      return handler.call(loader, options, callback);
     }
 
     if (!process.browser) {

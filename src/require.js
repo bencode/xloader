@@ -39,11 +39,11 @@ module.exports = klass({
 
 
 function load(self, module, callback) {
-  log.debug('try init: ' + module.id);
+  log.debug('init module: ' + module.id);
 
   if (module.loadtimes > 0) {
     module.loadtimes++;
-    log.debug(module.id + ' is loaded ' + module.loadtimes + ' times');
+    log.debug(module.id + ' is loaded', module.exports);
     callback();
     return;
   }
@@ -57,7 +57,7 @@ function load(self, module, callback) {
 
   loadDepends(self, module, function() {
     compile(self, module, function() {
-      log.debug(module.id + ' is loaded');
+      log.debug(module.id + ' is loaded', module.exports);
       module.loadtimes = loadlist.length;
       delete module.loadlist;
       util.each(loadlist, function(index, fn) {
@@ -88,7 +88,7 @@ function loadDepends(self, module, callback) {
   });
 
 
-  log.debug('try load depends: ', adepends);
+  log.debug('try load depends for: ' + module.id, adepends);
 
   // 并行加载依赖模块
   const n = adepends.length;
@@ -213,7 +213,7 @@ function loadAsync(self, id, callback) {
     namespace: loader.namespace
   };
 
-  log.debug('try request...: ' + url);
+  log.debug('try request: ' + url);
   loader.trigger('request', options, function() {
     delete requestList[id];
     util.each(list, function(index, fn) {

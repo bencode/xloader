@@ -11,9 +11,10 @@ module.exports = {
   },
 
   output: {
-    library: 'xloader',
+    library: '[name]',
     path: pathUtil.join(__dirname, 'dist'),
-    filename: '[name].js'
+    filename: '[name].js',
+    devtoolModuleFilenameTemplate: '[resource-path]'
   },
 
   externals: {
@@ -31,5 +32,7 @@ module.exports = {
         }
       }
     ]
-  }
+  },
+
+  devtool: '#cheap-module-source-map'
 };

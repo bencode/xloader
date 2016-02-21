@@ -49,7 +49,7 @@ var xloader =
 
 	var util = __webpack_require__(2);
 	var log = __webpack_require__(6);
-	var Loader = __webpack_require__(16);
+	var Loader = __webpack_require__(19);
 
 	/* eslint no-underscore-dangle: 0 */
 
@@ -58,6 +58,8 @@ var xloader =
 	loader.new = function (namespace, options) {
 	  return new Loader(namespace, options);
 	};
+
+	loader.log = log;
 
 	var x = loader.new('x', { autoloadAnonymous: true });
 
@@ -71,7 +73,7 @@ var xloader =
 	  return global;
 	});
 
-	if (util.isBrowser) {
+	if (process.browser) {
 	  (function () {
 	    var originDefine = global.define;
 	    var originRequire = global.require;
@@ -86,7 +88,7 @@ var xloader =
 	      return loader;
 	    };
 
-	    loader.assets = __webpack_require__(18);
+	    loader.assets = __webpack_require__(17);
 
 	    global.xloader = loader;
 	    global.define = loader.define;
@@ -94,12 +96,12 @@ var xloader =
 	  })();
 	}
 
-	var isDebug = util.isBrowser ? /\debug-xloader\b/.test(window.location.search) : // eslint-disable-line
+	var isDebug = process.browser ? /\bdebug-xloader\b/.test(window.location.search) : // eslint-disable-line
 	process.env.DEBUG === 'xloader'; // eslint-disable-line
 
 	if (isDebug) {
 	  log.level = 'debug';
-	}
+		}
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }()), __webpack_require__(4)))
 
 /***/ },
@@ -190,9 +192,7 @@ var xloader =
 	  path = path.replace(rLastSlash, '');
 	  var pos = path.lastIndexOf('/');
 	  return pos === -1 ? '' : path.substr(0, pos);
-	};
-
-	exports.isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+		};
 
 /***/ },
 /* 3 */,
@@ -304,18 +304,9 @@ var xloader =
 	var util = __webpack_require__(2);
 
 	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
-
-	module.exports = log;
-
 	var slice = [].slice;
 
-	function log(type, args) {
-	  if (log.isEnabled(type)) {
-	    args = slice.call(args, 0);
-	    args[0] = '[loader] ' + args[0];
-	    log.handler(type, args);
-	  }
-	}
+	var log = module.exports = {};
 
 	log.level = 'warn';
 	log.isEnabled = function (type) {
@@ -324,7 +315,11 @@ var xloader =
 
 	util.each(LEVEL, function (type) {
 	  log[type] = function () {
-	    log(type, arguments);
+	    if (log.isEnabled(type)) {
+	      var args = slice.call(arguments, 0);
+	      args[0] = '[loader] ' + args[0];
+	      log.handler(type, args);
+	    }
 	  };
 	});
 
@@ -332,7 +327,7 @@ var xloader =
 	  if (console[type]) {
 	    console[type].apply(console, args);
 	  }
-	} : function () {};
+		} : function () {};
 
 /***/ },
 /* 7 */,
@@ -422,7 +417,7 @@ var xloader =
 	      cache[name] = value;
 	    }
 	  }
-	});
+		});
 
 /***/ },
 /* 11 */
@@ -441,7 +436,7 @@ var xloader =
 	  proto && util.extend(klass.prototype, proto);
 
 	  return klass;
-	};
+		};
 
 /***/ },
 /* 12 */,
@@ -512,7 +507,7 @@ var xloader =
 	  id = id || '____anonymous' + util.guid();
 
 	  return { id: id, depends: depends, factory: factory, anonymous: anonymous };
-	}
+		}
 
 /***/ },
 /* 14 */,
@@ -554,11 +549,11 @@ var xloader =
 	});
 
 	function load(self, module, callback) {
-	  log.debug('try init: ' + module.id);
+	  log.debug('init module: ' + module.id);
 
 	  if (module.loadtimes > 0) {
 	    module.loadtimes++;
-	    log.debug(module.id + ' is loaded ' + module.loadtimes + ' times');
+	    log.debug(module.id + ' is loaded', module.exports);
 	    callback();
 	    return;
 	  }
@@ -572,7 +567,7 @@ var xloader =
 
 	  loadDepends(self, module, function () {
 	    compile(self, module, function () {
-	      log.debug(module.id + ' is loaded');
+	      log.debug(module.id + ' is loaded', module.exports);
 	      module.loadtimes = loadlist.length;
 	      delete module.loadlist;
 	      util.each(loadlist, function (index, fn) {
@@ -600,7 +595,7 @@ var xloader =
 	    adepends[index] = rRelative.test(id) ? util.join(rpath, id) : id;
 	  });
 
-	  log.debug('try load depends: ', adepends);
+	  log.debug('try load depends for: ' + module.id, adepends);
 
 	  // 并行加载依赖模块
 	  var n = adepends.length;
@@ -724,7 +719,7 @@ var xloader =
 	    namespace: loader.namespace
 	  };
 
-	  log.debug('try request...: ' + url);
+	  log.debug('try request: ' + url);
 	  loader.trigger('request', options, function () {
 	    delete requestList[id];
 	    util.each(list, function (index, fn) {
@@ -735,7 +730,180 @@ var xloader =
 	//~ loadAsync
 
 /***/ },
-/* 16 */
+/* 16 */,
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var log = __webpack_require__(6);
+
+	/* global window, document */
+
+	var rCss = /\.css(\?|$)/;
+
+	exports.postLoadScript = null;
+
+	exports.load = function (url, options) {
+	  var type = rCss.test(url) ? 'css' : 'script';
+	  return exports[type](url, options);
+	};
+
+	var currentlyAddingScript = undefined;
+
+	exports.script = function (url, options) {
+	  options = options || {};
+
+	  var node = doc.createElement('script');
+	  var removeNode = !log.isEnabled('debug');
+
+	  onLoadAssets(node, url, removeNode, options, function () {
+	    if (exports.postLoadScript) {
+	      exports.postLoadScript(url, options);
+	      exports.postLoadScript = null;
+	    }
+	  });
+
+	  node.async = 'async';
+	  if (options.namespace) {
+	    node.setAttribute('data-namespace', options.namespace);
+	  }
+	  node.src = url;
+
+	  if (options.charset) {
+	    node.charset = options.charset;
+	  }
+
+	  currentlyAddingScript = node;
+	  append(node);
+	  currentlyAddingScript = null;
+	};
+	//~ script
+
+	var rWebKit = /.*webkit\/?(\d+)\..*/;
+	var rMobile = /mobile/;
+
+	var UA = window.navigator.userAgent.toLowerCase();
+	var webkitVersion = rWebKit.exec(UA);
+	var isOldWebKit = webkitVersion ? webkitVersion[1] * 1 < 536 : false;
+	var isPollCSS = isOldWebKit || !webkitVersion && rMobile.test(UA);
+
+	exports.css = function (url, options) {
+	  options = options || {};
+
+	  var node = doc.createElement('link');
+
+	  node.rel = 'stylesheet';
+	  node.href = url;
+
+	  if (options.charset) {
+	    node.charset = options.charset;
+	  }
+
+	  if (!('onload' in node) || isPollCSS) {
+	    setTimeout(function () {
+	      poll(node, options);
+	    }, 1);
+	  } else {
+	    onLoadAssets(node, url, false, options);
+	  }
+
+	  append(node);
+	};
+	//~ css
+
+	var rLoadSheetError = /security|denied/i;
+	function poll(node, options) {
+	  var flag = false;
+
+	  setTimeout(function () {
+	    if (!flag) {
+	      flag = true;
+	      options.error && options.error(new Error('poll request css timeout'));
+	    }
+	  }, options.timeout || 10000);
+
+	  var fn = function fn() {
+	    var isLoaded = false;
+	    try {
+	      isLoaded = !!node.sheet;
+	    } catch (e) {
+	      isLoaded = rLoadSheetError.test(e.message);
+	    }
+
+	    if (!flag) {
+	      if (isLoaded) {
+	        flag = true;
+	        options.success && options.success();
+	      } else {
+	        setTimeout(fn, 20);
+	      }
+	    }
+	  };
+
+	  fn();
+	}
+
+	var rReadyStates = /loaded|complete|undefined/;
+
+	/* eslint max-params: [2, 5] */
+	function onLoadAssets(node, url, removeNode, options, fn) {
+	  node.onload = node.onreadystatechange = function (event) {
+	    event = event || window.event || {};
+	    if (event.type === 'load' || rReadyStates.test('' + node.readyState)) {
+	      node.onload = node.onreadystatechange = node.onerror = null;
+	      removeNode && head.removeChild(node);
+	      fn && fn();
+	      options.success && options.success();
+	    }
+	  };
+
+	  node.onerror = function () {
+	    node.onload = node.onreadystatechange = node.onerror = null;
+	    var e = new Error('load assets error: ' + url);
+	    options.error && options.error(e);
+	  };
+	}
+
+	var doc = document;
+	var head = doc.head || doc.getElementsByTagName('head')[0] || doc.documentElement;
+	var baseElement = doc.getElementsByTagName('base')[0];
+
+	function append(node) {
+	  baseElement ? head.insertBefore(node, baseElement) : head.appendChild(node);
+	}
+
+	// from seajs
+	var interactiveScript = undefined;
+
+	exports.getCurrentScript = function () {
+	  if (currentlyAddingScript) {
+	    return currentlyAddingScript;
+	  }
+
+	  // For IE6-9 browsers, the script onload event may not fire right
+	  // after the script is evaluated. Kris Zyp found that it
+	  // could query the script nodes and the one that is in "interactive"
+	  // mode indicates the current script
+	  // ref: http://goo.gl/JHfFW
+	  if (interactiveScript && interactiveScript.readyState === 'interactive') {
+	    return interactiveScript;
+	  }
+
+	  var scripts = head.getElementsByTagName('script');
+
+	  for (var i = scripts.length - 1; i >= 0; i--) {
+	    var script = scripts[i];
+	    if (script.readyState === 'interactive') {
+	      interactiveScript = script;
+	      return interactiveScript;
+	    }
+	  }
+		};
+
+/***/ },
+/* 18 */,
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -747,7 +915,7 @@ var xloader =
 	var Config = __webpack_require__(10);
 	var Define = __webpack_require__(13);
 	var Require = __webpack_require__(15);
-	var Request = __webpack_require__(17);
+	var Request = __webpack_require__(20);
 
 	module.exports = klass({
 	  init: function init(namespace, options) {
@@ -885,13 +1053,13 @@ var xloader =
 	      return v;
 	    }
 	  }
-	}
+		}
 
 /***/ },
-/* 17 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	/* WEBPACK VAR INJECTION */(function(process) {'use strict';
 
 	var klass = __webpack_require__(11);
 	var util = __webpack_require__(2);
@@ -911,7 +1079,7 @@ var xloader =
 	      return handler(options, callback);
 	    }
 
-	    if (!util.isBrowser) {
+	    if (!process.browser) {
 	      throw new Error('requestHandler not exists');
 	    }
 
@@ -939,181 +1107,12 @@ var xloader =
 	    };
 
 	    log.debug('request assets: ' + url, options);
-	    var assets = __webpack_require__(18);
+	    var assets = __webpack_require__(17);
 	    assets.load(url, opts);
 	  }
-	});
-
-/***/ },
-/* 18 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	var log = __webpack_require__(6);
-
-	/* global window, document */
-
-	var rCss = /\.css(\?|$)/;
-
-	exports.postLoadScript = null;
-
-	exports.load = function (url, options) {
-	  var type = rCss.test(url) ? 'css' : 'script';
-	  return exports[type](url, options);
-	};
-
-	var currentlyAddingScript = undefined;
-
-	exports.script = function (url, options) {
-	  options = options || {};
-
-	  var node = doc.createElement('script');
-	  var removeNode = !log.isEnabled('debug');
-
-	  onLoadAssets(node, url, removeNode, options, function () {
-	    if (exports.postLoadScript) {
-	      exports.postLoadScript(url, options);
-	      exports.postLoadScript = null;
-	    }
-	  });
-
-	  node.async = 'async';
-	  if (options.namespace) {
-	    node.setAttribute('data-namespace', options.namespace);
-	  }
-	  node.src = url;
-
-	  if (options.charset) {
-	    node.charset = options.charset;
-	  }
-
-	  currentlyAddingScript = node;
-	  append(node);
-	  currentlyAddingScript = null;
-	};
-	//~ script
-
-	var rWebKit = /.*webkit\/?(\d+)\..*/;
-	var rMobile = /mobile/;
-
-	var UA = window.navigator.userAgent.toLowerCase();
-	var webkitVersion = rWebKit.exec(UA);
-	var isOldWebKit = webkitVersion ? webkitVersion[1] * 1 < 536 : false;
-	var isPollCSS = isOldWebKit || !webkitVersion && rMobile.test(UA);
-
-	exports.css = function (url, options) {
-	  options = options || {};
-
-	  var node = doc.createElement('link');
-
-	  node.rel = 'stylesheet';
-	  node.href = url;
-
-	  if (options.charset) {
-	    node.charset = options.charset;
-	  }
-
-	  if (!('onload' in node) || isPollCSS) {
-	    setTimeout(function () {
-	      poll(node, options);
-	    }, 1);
-	  } else {
-	    onLoadAssets(node, url, false, options);
-	  }
-
-	  append(node);
-	};
-	//~ css
-
-	var rLoadSheetError = /security|denied/i;
-	function poll(node, options) {
-	  var flag = false;
-
-	  setTimeout(function () {
-	    if (!flag) {
-	      flag = true;
-	      options.error && options.error(new Error('poll request css timeout'));
-	    }
-	  }, options.timeout || 10000);
-
-	  var fn = function fn() {
-	    var isLoaded = false;
-	    try {
-	      isLoaded = !!node.sheet;
-	    } catch (e) {
-	      isLoaded = rLoadSheetError.test(e.message);
-	    }
-
-	    if (!flag) {
-	      if (isLoaded) {
-	        flag = true;
-	        options.success && options.success();
-	      } else {
-	        setTimeout(fn, 20);
-	      }
-	    }
-	  };
-
-	  fn();
-	}
-
-	var rReadyStates = /loaded|complete|undefined/;
-
-	/* eslint max-params: [2, 5] */
-	function onLoadAssets(node, url, removeNode, options, fn) {
-	  node.onload = node.onreadystatechange = function (event) {
-	    event = event || window.event || {};
-	    if (event.type === 'load' || rReadyStates.test('' + node.readyState)) {
-	      node.onload = node.onreadystatechange = node.onerror = null;
-	      removeNode && head.removeChild(node);
-	      fn && fn();
-	      options.success && options.success();
-	    }
-	  };
-
-	  node.onerror = function (e) {
-	    node.onload = node.onreadystatechange = node.onerror = null;
-	    e = e || new Error('load assets error');
-	    options.error && options.error(e);
-	  };
-	}
-
-	var doc = document;
-	var head = doc.head || doc.getElementsByTagName('head')[0] || doc.documentElement;
-	var baseElement = doc.getElementsByTagName('base')[0];
-
-	function append(node) {
-	  baseElement ? head.insertBefore(node, baseElement) : head.appendChild(node);
-	}
-
-	// from seajs
-	var interactiveScript = undefined;
-
-	exports.getCurrentScript = function () {
-	  if (currentlyAddingScript) {
-	    return currentlyAddingScript;
-	  }
-
-	  // For IE6-9 browsers, the script onload event may not fire right
-	  // after the script is evaluated. Kris Zyp found that it
-	  // could query the script nodes and the one that is in "interactive"
-	  // mode indicates the current script
-	  // ref: http://goo.gl/JHfFW
-	  if (interactiveScript && interactiveScript.readyState === 'interactive') {
-	    return interactiveScript;
-	  }
-
-	  var scripts = head.getElementsByTagName('script');
-
-	  for (var i = scripts.length - 1; i >= 0; i--) {
-	    var script = scripts[i];
-	    if (script.readyState === 'interactive') {
-	      interactiveScript = script;
-	      return interactiveScript;
-	    }
-	  }
-	};
+		});
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }
 /******/ ]);
+//# sourceMappingURL=xloader.js.map

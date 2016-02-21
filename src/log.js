@@ -8,20 +8,10 @@ const util = require('./util');
 
 
 const LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
-
-
-module.exports = log;
-
-
 const slice = [].slice;
 
-function log(type, args) {
-  if (log.isEnabled(type)) {
-    args = slice.call(args, 0);
-    args[0] = '[loader] ' + args[0];
-    log.handler(type, args);
-  }
-}
+
+const log = module.exports = {};
 
 
 log.level = 'warn';
@@ -30,10 +20,13 @@ log.isEnabled = function(type) {
 };
 
 
-
 util.each(LEVEL, function(type) {
   log[type] = function() {
-    log(type, arguments);
+    if (log.isEnabled(type)) {
+      const args = slice.call(arguments, 0);
+      args[0] = '[loader] ' + args[0];
+      log.handler(type, args);
+    }
   };
 });
 

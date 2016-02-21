@@ -22,7 +22,7 @@ module.exports = klass({
       return handler(options, callback);
     }
 
-    if (!util.isBrowser) {
+    if (!process.browser) {
       throw new Error('requestHandler not exists');
     }
 

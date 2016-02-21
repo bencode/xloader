@@ -7,3 +7,7 @@ require('../event');
 require('../config');
 require('../define');
 require('../require');
+
+require('./assets');
+
+require('./use');

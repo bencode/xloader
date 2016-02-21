@@ -132,9 +132,9 @@ function onLoadAssets(node, url, removeNode, options, fn) {
     }
   };
 
-  node.onerror = function(e) {
+  node.onerror = function() {
     node.onload = node.onreadystatechange = node.onerror = null;
-    e = e || new Error('load assets error');
+    const e = new Error('load assets error: ' + url);
     options.error && options.error(e);
   };
 }

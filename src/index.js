@@ -15,6 +15,8 @@ loader.new = function(namespace, options) {
   return new Loader(namespace, options);
 };
 
+loader.log = log;
+
 
 const x = loader.new('x', { autoloadAnonymous: true });
 
@@ -35,7 +37,7 @@ x.define('global', function() {
 });
 
 
-if (util.isBrowser) {
+if (process.browser) {
   const originDefine = global.define;
   const originRequire = global.require;
   const originLoader = global.xloader;
@@ -57,8 +59,8 @@ if (util.isBrowser) {
 }
 
 
-const isDebug = util.isBrowser ?
-    (/\debug-xloader\b/).test(window.location.search) :   // eslint-disable-line
+const isDebug = process.browser ?
+    (/\bdebug-xloader\b/).test(window.location.search) :   // eslint-disable-line
     process.env.DEBUG === 'xloader';    // eslint-disable-line
 
 if (isDebug) {

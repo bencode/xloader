@@ -94,13 +94,4 @@ describe('util', function() {
         .should.be.equal('aaa/zzz');
     util.join('aaa', 'bbb').should.be.equal('aaa/bbb');
   });
-
-
-  it('isBrowser', function() {
-    if (global.window && global.document) {
-      util.isBrowser.should.be.true();
-    } else {
-      util.isBrowser.should.be.false();
-    }
-  });
 });

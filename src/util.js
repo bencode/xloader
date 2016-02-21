@@ -95,8 +95,3 @@ exports.dirname = function(path) {
   const pos = path.lastIndexOf('/');
   return pos === -1 ? '' : path.substr(0, pos);
 };
-
-
-exports.isBrowser = typeof window !== 'undefined' &&
-    typeof document !== 'undefined';
-

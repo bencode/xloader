@@ -1,4 +1,4 @@
-var xloader =
+var test =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -54,11 +54,15 @@ var xloader =
 	__webpack_require__(12);
 	__webpack_require__(14);
 
+	__webpack_require__(16);
+
+	__webpack_require__(18);
+
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+	'use strict';
 
 	var util = __webpack_require__(2);
 
@@ -141,16 +145,7 @@ var xloader =
 	    util.join('aaa/bbb/ccc', '.././.././zzz').should.be.equal('aaa/zzz');
 	    util.join('aaa', 'bbb').should.be.equal('aaa/bbb');
 	  });
-
-	  it('isBrowser', function () {
-	    if (global.window && global.document) {
-	      util.isBrowser.should.be.true();
-	    } else {
-	      util.isBrowser.should.be.false();
-	    }
-	  });
-	});
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+		});
 
 /***/ },
 /* 2 */
@@ -239,9 +234,7 @@ var xloader =
 	  path = path.replace(rLastSlash, '');
 	  var pos = path.lastIndexOf('/');
 	  return pos === -1 ? '' : path.substr(0, pos);
-	};
-
-	exports.isBrowser = typeof window !== 'undefined' && typeof document !== 'undefined';
+		};
 
 /***/ },
 /* 3 */
@@ -317,7 +310,7 @@ var xloader =
 	    log.error('some error');
 	    log.handler.called.should.be.true();
 	  });
-	});
+		});
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
@@ -434,18 +427,9 @@ var xloader =
 	var util = __webpack_require__(2);
 
 	var LEVEL = { none: 0, error: 1, warn: 2, info: 3, debug: 4 };
-
-	module.exports = log;
-
 	var slice = [].slice;
 
-	function log(type, args) {
-	  if (log.isEnabled(type)) {
-	    args = slice.call(args, 0);
-	    args[0] = '[loader] ' + args[0];
-	    log.handler(type, args);
-	  }
-	}
+	var log = module.exports = {};
 
 	log.level = 'warn';
 	log.isEnabled = function (type) {
@@ -454,7 +438,11 @@ var xloader =
 
 	util.each(LEVEL, function (type) {
 	  log[type] = function () {
-	    log(type, arguments);
+	    if (log.isEnabled(type)) {
+	      var args = slice.call(arguments, 0);
+	      args[0] = '[loader] ' + args[0];
+	      log.handler(type, args);
+	    }
 	  };
 	});
 
@@ -462,7 +450,7 @@ var xloader =
 	  if (console[type]) {
 	    console[type].apply(console, args);
 	  }
-	} : function () {};
+		} : function () {};
 
 /***/ },
 /* 7 */
@@ -543,7 +531,7 @@ var xloader =
 
 	    data.should.be.eql(['version', '2.3']);
 	  });
-	});
+		});
 
 /***/ },
 /* 8 */
@@ -625,7 +613,7 @@ var xloader =
 
 	    config.get('resolve').should.be.eql([]);
 	  });
-	});
+		});
 
 /***/ },
 /* 10 */
@@ -658,7 +646,7 @@ var xloader =
 	      cache[name] = value;
 	    }
 	  }
-	});
+		});
 
 /***/ },
 /* 11 */
@@ -677,7 +665,7 @@ var xloader =
 	  proto && util.extend(klass.prototype, proto);
 
 	  return klass;
-	};
+		};
 
 /***/ },
 /* 12 */
@@ -755,7 +743,7 @@ var xloader =
 	    log.warn.called.should.be.true();
 	    log.warn.restore();
 	  });
-	});
+		});
 
 /***/ },
 /* 13 */
@@ -825,7 +813,7 @@ var xloader =
 	  id = id || '____anonymous' + util.guid();
 
 	  return { id: id, depends: depends, factory: factory, anonymous: anonymous };
-	}
+		}
 
 /***/ },
 /* 14 */
@@ -985,7 +973,7 @@ var xloader =
 	      cb();
 	    }, 300);
 	  });
-	}
+		}
 
 /***/ },
 /* 15 */
@@ -1026,11 +1014,11 @@ var xloader =
 	});
 
 	function load(self, module, callback) {
-	  log.debug('try init: ' + module.id);
+	  log.debug('init module: ' + module.id);
 
 	  if (module.loadtimes > 0) {
 	    module.loadtimes++;
-	    log.debug(module.id + ' is loaded ' + module.loadtimes + ' times');
+	    log.debug(module.id + ' is loaded', module.exports);
 	    callback();
 	    return;
 	  }
@@ -1044,7 +1032,7 @@ var xloader =
 
 	  loadDepends(self, module, function () {
 	    compile(self, module, function () {
-	      log.debug(module.id + ' is loaded');
+	      log.debug(module.id + ' is loaded', module.exports);
 	      module.loadtimes = loadlist.length;
 	      delete module.loadlist;
 	      util.each(loadlist, function (index, fn) {
@@ -1072,7 +1060,7 @@ var xloader =
 	    adepends[index] = rRelative.test(id) ? util.join(rpath, id) : id;
 	  });
 
-	  log.debug('try load depends: ', adepends);
+	  log.debug('try load depends for: ' + module.id, adepends);
 
 	  // 并行加载依赖模块
 	  var n = adepends.length;
@@ -1196,7 +1184,7 @@ var xloader =
 	    namespace: loader.namespace
 	  };
 
-	  log.debug('try request...: ' + url);
+	  log.debug('try request: ' + url);
 	  loader.trigger('request', options, function () {
 	    delete requestList[id];
 	    util.each(list, function (index, fn) {
@@ -1206,5 +1194,281 @@ var xloader =
 	}
 	//~ loadAsync
 
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+	'use stricg';
+
+	var assets = __webpack_require__(17);
+
+	describe('assets', function () {
+	  it('assets.css(url, options)', function (done) {
+	    assets.css('/test/browser/fixtures/ui.css', {
+	      success: done
+	    });
+	  });
+
+	  it('assets.css() - load error', function (done) {
+	    assets.css('/404', {
+	      error: function error(e) {
+	        e.should.be.an.Error();
+	        done();
+	      }
+	    });
+	  });
+
+	  it('assets.script(url, options)', function (done) {
+	    assets.script('/test/browser/fixtures/ui.js', {
+	      success: function success() {
+	        global.fixturesUI.success.should.be.true();
+	        delete global.fixturesUI;
+	        done();
+	      }
+	    });
+	  });
+
+	  it('assets.script() - load error', function (done) {
+	    assets.script('/404', {
+	      error: function error(e) {
+	        e.should.be.an.Error();
+	        e.should.match(/load assets error/);
+	        done();
+	      }
+	    });
+	  });
+		});
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 17 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var log = __webpack_require__(6);
+
+	/* global window, document */
+
+	var rCss = /\.css(\?|$)/;
+
+	exports.postLoadScript = null;
+
+	exports.load = function (url, options) {
+	  var type = rCss.test(url) ? 'css' : 'script';
+	  return exports[type](url, options);
+	};
+
+	var currentlyAddingScript = undefined;
+
+	exports.script = function (url, options) {
+	  options = options || {};
+
+	  var node = doc.createElement('script');
+	  var removeNode = !log.isEnabled('debug');
+
+	  onLoadAssets(node, url, removeNode, options, function () {
+	    if (exports.postLoadScript) {
+	      exports.postLoadScript(url, options);
+	      exports.postLoadScript = null;
+	    }
+	  });
+
+	  node.async = 'async';
+	  if (options.namespace) {
+	    node.setAttribute('data-namespace', options.namespace);
+	  }
+	  node.src = url;
+
+	  if (options.charset) {
+	    node.charset = options.charset;
+	  }
+
+	  currentlyAddingScript = node;
+	  append(node);
+	  currentlyAddingScript = null;
+	};
+	//~ script
+
+	var rWebKit = /.*webkit\/?(\d+)\..*/;
+	var rMobile = /mobile/;
+
+	var UA = window.navigator.userAgent.toLowerCase();
+	var webkitVersion = rWebKit.exec(UA);
+	var isOldWebKit = webkitVersion ? webkitVersion[1] * 1 < 536 : false;
+	var isPollCSS = isOldWebKit || !webkitVersion && rMobile.test(UA);
+
+	exports.css = function (url, options) {
+	  options = options || {};
+
+	  var node = doc.createElement('link');
+
+	  node.rel = 'stylesheet';
+	  node.href = url;
+
+	  if (options.charset) {
+	    node.charset = options.charset;
+	  }
+
+	  if (!('onload' in node) || isPollCSS) {
+	    setTimeout(function () {
+	      poll(node, options);
+	    }, 1);
+	  } else {
+	    onLoadAssets(node, url, false, options);
+	  }
+
+	  append(node);
+	};
+	//~ css
+
+	var rLoadSheetError = /security|denied/i;
+	function poll(node, options) {
+	  var flag = false;
+
+	  setTimeout(function () {
+	    if (!flag) {
+	      flag = true;
+	      options.error && options.error(new Error('poll request css timeout'));
+	    }
+	  }, options.timeout || 10000);
+
+	  var fn = function fn() {
+	    var isLoaded = false;
+	    try {
+	      isLoaded = !!node.sheet;
+	    } catch (e) {
+	      isLoaded = rLoadSheetError.test(e.message);
+	    }
+
+	    if (!flag) {
+	      if (isLoaded) {
+	        flag = true;
+	        options.success && options.success();
+	      } else {
+	        setTimeout(fn, 20);
+	      }
+	    }
+	  };
+
+	  fn();
+	}
+
+	var rReadyStates = /loaded|complete|undefined/;
+
+	/* eslint max-params: [2, 5] */
+	function onLoadAssets(node, url, removeNode, options, fn) {
+	  node.onload = node.onreadystatechange = function (event) {
+	    event = event || window.event || {};
+	    if (event.type === 'load' || rReadyStates.test('' + node.readyState)) {
+	      node.onload = node.onreadystatechange = node.onerror = null;
+	      removeNode && head.removeChild(node);
+	      fn && fn();
+	      options.success && options.success();
+	    }
+	  };
+
+	  node.onerror = function () {
+	    node.onload = node.onreadystatechange = node.onerror = null;
+	    var e = new Error('load assets error: ' + url);
+	    options.error && options.error(e);
+	  };
+	}
+
+	var doc = document;
+	var head = doc.head || doc.getElementsByTagName('head')[0] || doc.documentElement;
+	var baseElement = doc.getElementsByTagName('base')[0];
+
+	function append(node) {
+	  baseElement ? head.insertBefore(node, baseElement) : head.appendChild(node);
+	}
+
+	// from seajs
+	var interactiveScript = undefined;
+
+	exports.getCurrentScript = function () {
+	  if (currentlyAddingScript) {
+	    return currentlyAddingScript;
+	  }
+
+	  // For IE6-9 browsers, the script onload event may not fire right
+	  // after the script is evaluated. Kris Zyp found that it
+	  // could query the script nodes and the one that is in "interactive"
+	  // mode indicates the current script
+	  // ref: http://goo.gl/JHfFW
+	  if (interactiveScript && interactiveScript.readyState === 'interactive') {
+	    return interactiveScript;
+	  }
+
+	  var scripts = head.getElementsByTagName('script');
+
+	  for (var i = scripts.length - 1; i >= 0; i--) {
+	    var script = scripts[i];
+	    if (script.readyState === 'interactive') {
+	      interactiveScript = script;
+	      return interactiveScript;
+	    }
+	  }
+		};
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	describe('use/simple', function () {
+	  var x = global.xloader;
+
+	  it('define and require module', function (done) {
+	    x.define('use/simple/a', function () {
+	      return 'a';
+	    });
+
+	    x.require('use/simple/a', function (a) {
+	      a.should.be.equal('a');
+	      done();
+	    });
+	  });
+
+	  it('module with deps', function (done) {
+	    x.define('use/simple/b', ['./c', 'use/simple/d'], function (c, d) {
+	      return [c, d];
+	    });
+
+	    x.define('use/simple/c', 'c');
+	    x.define('use/simple/d', ['./c'], function (c) {
+	      return c + 'd';
+	    });
+
+	    x.require(['use/simple/b', 'use/simple/c'], function (b, c) {
+	      b.should.be.eql(['c', 'cd']);
+	      c.should.be.equal('c');
+	      done();
+	    });
+	  });
+
+	  it('async module', function (done) {
+	    x.config('resolve', function (id) {
+	      var re = /^use\/async\/(.*)$/;
+	      var match = re.exec(id);
+	      if (match) {
+	        return '/test/browser/fixtures/use/async/' + match[1] + '.js';
+	      }
+	      return null;
+	    });
+
+	    x.require('use/async/d', function (d) {
+	      d.a.should.be.equal('a');
+	      d.b.should.be.equal('b');
+	      d.c.result.should.be.eql(['b', 'c']);
+	      done();
+	    });
+	  });
+		});
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
 /***/ }
 /******/ ]);
+//# sourceMappingURL=test.js.map

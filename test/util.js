@@ -6,16 +6,10 @@ const util = require('../src/util');
 
 describe('util', function() {
   it('isArray', function() {
-    const isArray = Array.isArray;
-    Array.isArray = null;
-    const path = require.resolve('../src/util');
-    delete require.cache[path];
-    const t = require(path);
-    Array.isArray = isArray;
-
-    t.isArray([1, 2, 3]).should.be.true();
-    t.isArray('123').should.be.false();
-    t.isArray(arguments).should.be.false();
+    const isArray = util.__test.isArray;
+    isArray([1, 2, 3]).should.be.true();
+    isArray('123').should.be.false();
+    isArray(arguments).should.be.false();
   });
 
 
@@ -98,12 +92,15 @@ describe('util', function() {
   it('join', function() {
     util.join('aaa/bbb/ccc', '.././.././zzz')
         .should.be.equal('aaa/zzz');
-
     util.join('aaa', 'bbb').should.be.equal('aaa/bbb');
   });
 
 
   it('isBrowser', function() {
-    util.isBrowser.should.be.false();
+    if (global.window && global.document) {
+      util.isBrowser.should.be.true();
+    } else {
+      util.isBrowser.should.be.false();
+    }
   });
 });

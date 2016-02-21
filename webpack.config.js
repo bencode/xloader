@@ -5,12 +5,19 @@ var pathUtil = require('path');
 
 
 module.exports = {
-  entry: './src/index.js',
+  entry: {
+    xloader: './src/index.js',
+    test: './test/browser/index.js'
+  },
 
   output: {
     library: 'xloader',
     path: pathUtil.join(__dirname, 'dist'),
-    filename: 'xloader.js'
+    filename: '[name].js'
+  },
+
+  externals: {
+    sinon: 'sinon'
   },
 
   module: {

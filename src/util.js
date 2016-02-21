@@ -5,10 +5,17 @@ const toString = Object.prototype.toString;
 let guid = 1;
 
 
-exports.isArray = Array.isArray ? Array.isArray :
-function(o) {
-  return toString.call(o) === '[object Array]';
+exports.isArray = Array.isArray ? Array.isArray : isArray
+
+
+exports.__test = {
+  isArray: isArray
 };
+
+
+function isArray(o) {
+  return toString.call(o) === '[object Array]';
+}
 
 
 exports.extend = function(des, src) {

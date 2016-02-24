@@ -144,6 +144,7 @@ var test =
 	  it('join', function () {
 	    util.join('aaa/bbb/ccc', '.././.././zzz').should.be.equal('aaa/zzz');
 	    util.join('aaa', 'bbb').should.be.equal('aaa/bbb');
+	    util.join('', '../render.art').should.be.equal('../render.art');
 	  });
 		});
 
@@ -221,7 +222,7 @@ var test =
 	var rCurrent = /([^.])\.\//g;
 
 	exports.join = function (parent, path) {
-	  path = parent + '/' + path;
+	  path = parent ? parent + '/' + path : path;
 	  path = path.replace(rCurrent, '$1');
 	  while (rParent.test(path)) {
 	    path = path.replace(rParent, '');

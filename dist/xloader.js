@@ -172,7 +172,7 @@ var xloader =
 	var rCurrent = /([^.])\.\//g;
 
 	exports.join = function (parent, path) {
-	  path = parent + '/' + path;
+	  path = parent ? parent + '/' + path : path;
 	  path = path.replace(rCurrent, '$1');
 	  while (rParent.test(path)) {
 	    path = path.replace(rParent, '');

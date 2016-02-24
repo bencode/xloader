@@ -93,5 +93,6 @@ describe('util', function() {
     util.join('aaa/bbb/ccc', '.././.././zzz')
         .should.be.equal('aaa/zzz');
     util.join('aaa', 'bbb').should.be.equal('aaa/bbb');
+    util.join('', '../render.art').should.be.equal('../render.art');
   });
 });

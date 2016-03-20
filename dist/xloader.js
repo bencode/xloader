@@ -650,6 +650,9 @@ var xloader =
 	    // 依赖的模块是异步加载
 	    loadAsync(self, id, function (lo) {
 	      load(self, lo, cb);
+	    }, function (reason) {
+	      var e = new Error('load dependency error, ' + module.id + ' -> ' + id + ', reason: ' + reason);
+	      loader.trigger('error', e);
 	    });
 	  });
 	}
@@ -698,13 +701,13 @@ var xloader =
 
 	var requestList = {};
 
-	function loadAsync(self, id, callback) {
+	function loadAsync(self, id, callback, error) {
 	  var loader = self.loader;
 	  var modules = loader.modules;
 
 	  var url = loader.trigger('resolve', id);
 	  if (!url) {
-	    loader.trigger('error', new Error('can not resolve module: ' + id));
+	    error('can not resolve module: ' + id);
 	    return;
 	  }
 
@@ -715,7 +718,7 @@ var xloader =
 	  var cb = function cb() {
 	    var o = modules[id];
 	    if (!o) {
-	      loader.trigger('error', new Error('can not find module: ' + id));
+	      error('can not find module: ' + id);
 	      return;
 	    }
 

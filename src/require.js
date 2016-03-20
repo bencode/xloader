@@ -127,6 +127,10 @@ function loadDepends(self, module, callback) {
     // 依赖的模块是异步加载
     loadAsync(self, id, function(lo) {
       load(self, lo, cb);
+    }, function(reason) {
+      const e = new Error('load dependency error, ' +
+                    module.id + ' -> ' + id + ', reason: ' + reason);
+      loader.trigger('error', e);
     });
   });
 }
@@ -176,13 +180,13 @@ function compile(self, module, callback) {
 
 const requestList = {};
 
-function loadAsync(self, id, callback) {
+function loadAsync(self, id, callback, error) {
   const loader = self.loader;
   const modules = loader.modules;
 
   const url = loader.trigger('resolve', id);
   if (!url) {
-    loader.trigger('error', new Error('can not resolve module: ' + id));
+    error('can not resolve module: ' + id);
     return;
   }
 
@@ -193,7 +197,7 @@ function loadAsync(self, id, callback) {
   const cb = function() {
     const o = modules[id];
     if (!o) {
-      loader.trigger('error', new Error('can not find module: ' + id));
+      error('can not find module: ' + id);
       return;
     }
 

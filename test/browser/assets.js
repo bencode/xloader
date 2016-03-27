@@ -25,7 +25,7 @@ describe('assets', function() {
   it('assets.script(url, options)', function(done) {
     assets.script('/test/browser/fixtures/ui.js', {
       success: function() {
-        global.fixturesUI.success.should.be.true();
+        global.fixturesUI.success.should.true();
         delete global.fixturesUI;
         done();
       }

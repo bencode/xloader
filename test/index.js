@@ -28,6 +28,6 @@ describe('index', function() {
 
 
   it('define global module', function() {
-    x.require('global').should.be.equal(global);
+    x.require('global').should.equal(global);
   });
 });

@@ -16,7 +16,7 @@ describe('define', function() {
 
   it('define(id, depends, factory)', function() {
     x.define('a', ['b', 'c', 'd'], fn);
-    mods.a.should.be.eql({
+    mods.a.should.eql({
       id: 'a',
       depends: ['b', 'c', 'd'],
       factory: fn,
@@ -27,7 +27,7 @@ describe('define', function() {
 
   it('define(id, factory)', function() {
     x.define('b', fn);
-    mods.b.should.be.eql({
+    mods.b.should.eql({
       id: 'b',
       depends: [],
       factory: fn,
@@ -38,7 +38,7 @@ describe('define', function() {
 
   it('define(a, depends)', function() {
     x.define('c', ['b', 'c', 'd']);
-    mods.c.should.be.eql({
+    mods.c.should.eql({
       id: 'c',
       depends: ['b', 'c', 'd'],
       factory: undefined,
@@ -49,15 +49,15 @@ describe('define', function() {
 
   it('define(depends, factory)', function() {
     const o = x.define(['b', 'c', 'd'], fn);
-    (/^____anonymous\d+$/).test(o.id).should.be.true();
-    o.anonymous.should.be.true();
+    (/^____anonymous\d+$/).test(o.id).should.true();
+    o.anonymous.should.true();
   });
 
 
   it('define(fn)', function() {
     const o = x.define(fn);
-    o.factory.should.be.equal(fn);
-    o.anonymous.should.be.true();
+    o.factory.should.equal(fn);
+    o.anonymous.should.true();
   });
 
 
@@ -67,7 +67,7 @@ describe('define', function() {
     x.define('test/a', ['a', 'b'], function() {});
     const o = mods['test/a'];
 
-    loader.trigger.args[0].should.be.eql(['define', o]);
+    loader.trigger.args[0].should.eql(['define', o]);
   });
 
 
@@ -76,7 +76,7 @@ describe('define', function() {
 
     x.define('test/hello', 'hello world');
     x.define('test/hello', 'hello world');
-    log.warn.called.should.be.true();
+    log.warn.called.should.true();
     log.warn.restore();
   });
 });

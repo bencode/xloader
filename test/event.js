@@ -22,15 +22,15 @@ describe('event', function() {
     event.on('test', fn2);
 
     event.trigger('test', 3, 4);
-    s.should.be.equal(21);
+    s.should.equal(21);
 
     event.off('test', fn1);
     event.trigger('test', 5, 2);
-    s.should.be.equal(147);
+    s.should.equal(147);
 
     event.off('test', fn2);
     event.trigger('test', 3, 6);
-    s.should.be.equal(147);
+    s.should.equal(147);
 
     // 关闭不存在在的事件也不会报错
     event.off('notexist', fn1);
@@ -48,8 +48,8 @@ describe('event', function() {
     });
 
     const ret = event.trigger('click');
-    ret.should.be.equal('hello');
-    s.should.be.equal(1);
+    ret.should.equal('hello');
+    s.should.equal(1);
   });
 
 
@@ -72,9 +72,9 @@ describe('event', function() {
 
     o.set('version', '2.3');
 
-    o.version.should.be.equal('2.3');
-    o.dirty.should.be.true();
+    o.version.should.equal('2.3');
+    o.dirty.should.true();
 
-    data.should.be.eql(['version', '2.3']);
+    data.should.eql(['version', '2.3']);
   });
 });

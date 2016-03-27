@@ -9,16 +9,16 @@ describe('config', function() {
     const config = new Config();
 
     config.set('root', '/xloader');
-    config.get('root').should.be.equal('/xloader');
+    config.get('root').should.equal('/xloader');
 
-    config.get('alias').should.be.eql([]);
+    config.get('alias').should.eql([]);
 
     config.set('alias', { a: 'b' });
-    config.get('alias').should.be.eql([{ a: 'b' }]);
+    config.get('alias').should.eql([{ a: 'b' }]);
 
     config.set('alias', { other: 'other' });
-    config.get('alias').should.be.eql([{ a: 'b' }, { other: 'other' }]);
+    config.get('alias').should.eql([{ a: 'b' }, { other: 'other' }]);
 
-    config.get('resolve').should.be.eql([]);
+    config.get('resolve').should.eql([]);
   });
 });

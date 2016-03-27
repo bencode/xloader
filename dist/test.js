@@ -69,14 +69,14 @@ var test =
 	describe('util', function () {
 	  it('isArray', function () {
 	    var isArray = util.__test.isArray;
-	    isArray([1, 2, 3]).should.be.true();
-	    isArray('123').should.be.false();
-	    isArray(arguments).should.be.false();
+	    isArray([1, 2, 3]).should.true();
+	    isArray('123').should.false();
+	    isArray(arguments).should.false();
 	  });
 
 	  it('extend', function () {
 	    var o = util.extend({ a: 1, b: 2, d: 'd' }, { b: 3, c: 4, d: null, e: undefined, f: 0 });
-	    o.should.be.eql({ a: 1, b: 3, c: 4, d: 'd', f: 0 });
+	    o.should.eql({ a: 1, b: 3, c: 4, d: 'd', f: 0 });
 	  });
 
 	  it('each', function () {
@@ -85,7 +85,7 @@ var test =
 	    util.each(list, function (index, value) {
 	      s += value;
 	    });
-	    s.should.be.equal(10);
+	    s.should.equal(10);
 
 	    var o = { a: 1, b: 2, c: 3 };
 	    s = '';
@@ -93,7 +93,7 @@ var test =
 	      s += k + '=' + v + ';';
 	    });
 
-	    s.should.be.equal('a=1;b=2;c=3;');
+	    s.should.equal('a=1;b=2;c=3;');
 	  });
 
 	  it('map', function () {
@@ -105,7 +105,7 @@ var test =
 	      return undefined;
 	    });
 
-	    list.should.be.eql([6, 8, 10]);
+	    list.should.eql([6, 8, 10]);
 	  });
 
 	  it('proxy', function () {
@@ -116,7 +116,7 @@ var test =
 	      n: 100
 	    };
 	    var fn = util.proxy(o, 'm');
-	    fn().should.be.equal(100);
+	    fn().should.equal(100);
 	  });
 
 	  it('assert', function () {
@@ -132,19 +132,19 @@ var test =
 	  it('guid', function () {
 	    var now = util.guid();
 	    now.should.be.type('number');
-	    (util.guid() - now).should.be.equal(1);
+	    (util.guid() - now).should.equal(1);
 	  });
 
 	  it('dirname', function () {
-	    util.dirname('lang/core').should.be.equal('lang');
-	    util.dirname('hello/abcd/').should.be.equal('hello');
-	    util.dirname('hi').should.be.equal('');
+	    util.dirname('lang/core').should.equal('lang');
+	    util.dirname('hello/abcd/').should.equal('hello');
+	    util.dirname('hi').should.equal('');
 	  });
 
 	  it('join', function () {
-	    util.join('aaa/bbb/ccc', '.././.././zzz').should.be.equal('aaa/zzz');
-	    util.join('aaa', 'bbb').should.be.equal('aaa/bbb');
-	    util.join('', '../render.art').should.be.equal('../render.art');
+	    util.join('aaa/bbb/ccc', '.././.././zzz').should.equal('aaa/zzz');
+	    util.join('aaa', 'bbb').should.equal('aaa/bbb');
+	    util.join('', '../render.art').should.equal('../render.art');
 	  });
 		});
 
@@ -266,22 +266,22 @@ var test =
 	    log.filter = false;
 
 	    log.info('hello');
-	    log.handler.called.should.be.true();
+	    log.handler.called.should.true();
 
 	    log.handler.reset();
 
 	    log.warn('world');
-	    log.handler.called.should.be.true();
+	    log.handler.called.should.true();
 
 	    log.handler.reset();
 
 	    log.debug('my');
-	    log.handler.called.should.be.false();
+	    log.handler.called.should.false();
 
 	    log.handler.reset();
 
 	    log.error('some error');
-	    log.handler.called.should.be.true();
+	    log.handler.called.should.true();
 	  });
 
 	  it('test on log.level=warn', function () {
@@ -289,22 +289,22 @@ var test =
 	    log.filter = false;
 
 	    log.debug('hello');
-	    log.handler.called.should.be.false();
+	    log.handler.called.should.false();
 
 	    log.handler.reset();
 
 	    log.warn('world');
-	    log.handler.called.should.be.true();
+	    log.handler.called.should.true();
 
 	    log.handler.reset();
 
 	    log.info('loader');
-	    log.handler.called.should.be.false();
+	    log.handler.called.should.false();
 
 	    log.handler.reset();
 
 	    log.error('some error');
-	    log.handler.called.should.be.true();
+	    log.handler.called.should.true();
 	  });
 		});
 
@@ -496,15 +496,15 @@ var test =
 	    event.on('test', fn2);
 
 	    event.trigger('test', 3, 4);
-	    s.should.be.equal(21);
+	    s.should.equal(21);
 
 	    event.off('test', fn1);
 	    event.trigger('test', 5, 2);
-	    s.should.be.equal(147);
+	    s.should.equal(147);
 
 	    event.off('test', fn2);
 	    event.trigger('test', 3, 6);
-	    s.should.be.equal(147);
+	    s.should.equal(147);
 
 	    // 关闭不存在在的事件也不会报错
 	    event.off('notexist', fn1);
@@ -521,8 +521,8 @@ var test =
 	    });
 
 	    var ret = event.trigger('click');
-	    ret.should.be.equal('hello');
-	    s.should.be.equal(1);
+	    ret.should.equal('hello');
+	    s.should.equal(1);
 	  });
 
 	  it('让普通对象有事件能力', function () {
@@ -544,10 +544,10 @@ var test =
 
 	    o.set('version', '2.3');
 
-	    o.version.should.be.equal('2.3');
-	    o.dirty.should.be.true();
+	    o.version.should.equal('2.3');
+	    o.dirty.should.true();
 
-	    data.should.be.eql(['version', '2.3']);
+	    data.should.eql(['version', '2.3']);
 	  });
 		});
 
@@ -619,17 +619,17 @@ var test =
 	    var config = new Config();
 
 	    config.set('root', '/xloader');
-	    config.get('root').should.be.equal('/xloader');
+	    config.get('root').should.equal('/xloader');
 
-	    config.get('alias').should.be.eql([]);
+	    config.get('alias').should.eql([]);
 
 	    config.set('alias', { a: 'b' });
-	    config.get('alias').should.be.eql([{ a: 'b' }]);
+	    config.get('alias').should.eql([{ a: 'b' }]);
 
 	    config.set('alias', { other: 'other' });
-	    config.get('alias').should.be.eql([{ a: 'b' }, { other: 'other' }]);
+	    config.get('alias').should.eql([{ a: 'b' }, { other: 'other' }]);
 
-	    config.get('resolve').should.be.eql([]);
+	    config.get('resolve').should.eql([]);
 	  });
 		});
 
@@ -704,7 +704,7 @@ var test =
 
 	  it('define(id, depends, factory)', function () {
 	    x.define('a', ['b', 'c', 'd'], fn);
-	    mods.a.should.be.eql({
+	    mods.a.should.eql({
 	      id: 'a',
 	      depends: ['b', 'c', 'd'],
 	      factory: fn,
@@ -714,7 +714,7 @@ var test =
 
 	  it('define(id, factory)', function () {
 	    x.define('b', fn);
-	    mods.b.should.be.eql({
+	    mods.b.should.eql({
 	      id: 'b',
 	      depends: [],
 	      factory: fn,
@@ -724,7 +724,7 @@ var test =
 
 	  it('define(a, depends)', function () {
 	    x.define('c', ['b', 'c', 'd']);
-	    mods.c.should.be.eql({
+	    mods.c.should.eql({
 	      id: 'c',
 	      depends: ['b', 'c', 'd'],
 	      factory: undefined,
@@ -734,14 +734,14 @@ var test =
 
 	  it('define(depends, factory)', function () {
 	    var o = x.define(['b', 'c', 'd'], fn);
-	    /^____anonymous\d+$/.test(o.id).should.be.true();
-	    o.anonymous.should.be.true();
+	    /^____anonymous\d+$/.test(o.id).should.true();
+	    o.anonymous.should.true();
 	  });
 
 	  it('define(fn)', function () {
 	    var o = x.define(fn);
-	    o.factory.should.be.equal(fn);
-	    o.anonymous.should.be.true();
+	    o.factory.should.equal(fn);
+	    o.anonymous.should.true();
 	  });
 
 	  it('可以响应define事件', function () {
@@ -750,7 +750,7 @@ var test =
 	    x.define('test/a', ['a', 'b'], function () {});
 	    var o = mods['test/a'];
 
-	    loader.trigger.args[0].should.be.eql(['define', o]);
+	    loader.trigger.args[0].should.eql(['define', o]);
 	  });
 
 	  it('重复define模块会警告', function () {
@@ -758,7 +758,7 @@ var test =
 
 	    x.define('test/hello', 'hello world');
 	    x.define('test/hello', 'hello world');
-	    log.warn.called.should.be.true();
+	    log.warn.called.should.true();
 	    log.warn.restore();
 	  });
 		});
@@ -858,7 +858,7 @@ var test =
 	    loader.define('c', 'module c');
 
 	    loader.require(['a'], function (a) {
-	      a.should.be.eql(['module b', 'module c']);
+	      a.should.eql(['module b', 'module c']);
 	      done();
 	    });
 	  });
@@ -874,7 +874,7 @@ var test =
 	    loader.define('lib/d', 'module d');
 
 	    loader.require('lib/util/a', function (a) {
-	      a.should.be.eql(['module b', 'module c', 'module d']);
+	      a.should.eql(['module b', 'module c', 'module d']);
 	      done();
 	    });
 	  });
@@ -885,7 +885,7 @@ var test =
 
 	    it('最简单场景', function (done) {
 	      loader.require(['simple'], function (simple) {
-	        simple.should.be.equal('/assets/simple.js');
+	        simple.should.equal('/assets/simple.js');
 	        done();
 	      });
 	    });
@@ -896,9 +896,9 @@ var test =
 	      // c, d, e is async
 	      loader.require(['d', 'e', 'a', 'c', 'b'], function (d, e, a, c) {
 	        // eslint-disable-line
-	        a.should.be.equal('module a');
-	        c.should.be.equal('/assets/c.js');
-	        e.should.be.equal('/assets/e.js');
+	        a.should.equal('module a');
+	        c.should.equal('/assets/c.js');
+	        e.should.equal('/assets/e.js');
 	        done();
 	      });
 	    });
@@ -933,7 +933,7 @@ var test =
 	    });
 
 	    loader.require('test', function (test) {
-	      (test === null).should.be.true();
+	      (test === null).should.true();
 	      fn.args[0].should.match(/some error happen/);
 	      done();
 	    });
@@ -950,7 +950,7 @@ var test =
 
 	    loader.define('compile/a', 'a');
 	    loader.require(['compile/a'], function (a) {
-	      a.should.be.equal('b');
+	      a.should.equal('b');
 	    });
 	  });
 	});
@@ -1243,7 +1243,7 @@ var test =
 	  it('assets.script(url, options)', function (done) {
 	    assets.script('/test/browser/fixtures/ui.js', {
 	      success: function success() {
-	        global.fixturesUI.success.should.be.true();
+	        global.fixturesUI.success.should.true();
 	        delete global.fixturesUI;
 	        done();
 	      }
@@ -1274,14 +1274,10 @@ var test =
 
 	var rCss = /\.css(\?|$)/;
 
-	exports.postLoadScript = null;
-
 	exports.load = function (url, options) {
 	  var type = rCss.test(url) ? 'css' : 'script';
 	  return exports[type](url, options);
 	};
-
-	var currentlyAddingScript = undefined;
 
 	exports.script = function (url, options) {
 	  options = options || {};
@@ -1289,14 +1285,14 @@ var test =
 	  var node = doc.createElement('script');
 	  var removeNode = !log.isEnabled('debug');
 
-	  onLoadAssets(node, url, removeNode, options, function () {
-	    if (exports.postLoadScript) {
-	      exports.postLoadScript(url, options);
-	      exports.postLoadScript = null;
-	    }
-	  });
+	  onLoadAssets(node, url, removeNode, options);
 
-	  node.async = 'async';
+	  if (options.async !== false) {
+	    node.async = 'async';
+	  }
+	  if (options.id) {
+	    node.setAttribute('data-id', options.id);
+	  }
 	  if (options.namespace) {
 	    node.setAttribute('data-namespace', options.namespace);
 	  }
@@ -1306,9 +1302,7 @@ var test =
 	    node.charset = options.charset;
 	  }
 
-	  currentlyAddingScript = node;
 	  append(node);
-	  currentlyAddingScript = null;
 	};
 	//~ script
 
@@ -1403,41 +1397,15 @@ var test =
 
 	function append(node) {
 	  baseElement ? head.insertBefore(node, baseElement) : head.appendChild(node);
-	}
-
-	// from seajs
-	var interactiveScript = undefined;
-
-	exports.getCurrentScript = function () {
-	  if (currentlyAddingScript) {
-	    return currentlyAddingScript;
-	  }
-
-	  // For IE6-9 browsers, the script onload event may not fire right
-	  // after the script is evaluated. Kris Zyp found that it
-	  // could query the script nodes and the one that is in "interactive"
-	  // mode indicates the current script
-	  // ref: http://goo.gl/JHfFW
-	  if (interactiveScript && interactiveScript.readyState === 'interactive') {
-	    return interactiveScript;
-	  }
-
-	  var scripts = head.getElementsByTagName('script');
-
-	  for (var i = scripts.length - 1; i >= 0; i--) {
-	    var script = scripts[i];
-	    if (script.readyState === 'interactive') {
-	      interactiveScript = script;
-	      return interactiveScript;
-	    }
-	  }
-		};
+		}
 
 /***/ },
 /* 18 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {'use strict';
+
+	/* globa document */
 
 	describe('use/simple', function () {
 	  var x = global.xloader;
@@ -1448,12 +1416,12 @@ var test =
 	    });
 
 	    x.require('use/simple/a', function (a) {
-	      a.should.be.equal('a');
+	      a.should.equal('a');
 	      done();
 	    });
 	  });
 
-	  it('module with deps', function (done) {
+	  it('define and require module that with deps', function (done) {
 	    x.define('use/simple/b', ['./c', 'use/simple/d'], function (c, d) {
 	      return [c, d];
 	    });
@@ -1464,13 +1432,13 @@ var test =
 	    });
 
 	    x.require(['use/simple/b', 'use/simple/c'], function (b, c) {
-	      b.should.be.eql(['c', 'cd']);
-	      c.should.be.equal('c');
+	      b.should.eql(['c', 'cd']);
+	      c.should.equal('c');
 	      done();
 	    });
 	  });
 
-	  it('async module', function (done) {
+	  it('config resolve for loading async module ', function (done) {
 	    x.config('resolve', function (id) {
 	      var re = /^use\/async\/(.*)$/;
 	      var match = re.exec(id);
@@ -1481,10 +1449,29 @@ var test =
 	    });
 
 	    x.require('use/async/d', function (d) {
-	      d.a.should.be.equal('a');
-	      d.b.should.be.equal('b');
-	      d.c.result.should.be.eql(['b', 'c']);
+	      d.a.should.equal('a');
+	      d.b.should.equal('b');
+	      d.c.result.should.eql(['b', 'c']);
 	      done();
+	    });
+	  });
+
+	  it('config requestOptions.async', function (done) {
+	    var prefix = '/test/browser/fixtures/';
+	    var $$ = document.querySelectorAll.bind(document);
+
+	    x.require(prefix + 'async-1.js', function () {
+	      var node1 = $$('[data-id="' + prefix + 'async-1.js"]')[0];
+	      node1.getAttribute('async').should.equal('');
+
+	      var z = x.new();
+	      z.config('requestOptions', { async: false });
+
+	      z.require(prefix + 'async-2.js', function () {
+	        var node2 = $$('[data-id="' + prefix + 'async-2.js"]')[0];
+	        (node2.getAttribute('async') === null).should.true();
+	        done();
+	      });
 	    });
 	  });
 		});

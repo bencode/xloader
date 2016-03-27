@@ -22,7 +22,7 @@ describe('require', function() {
     loader.define('c', 'module c');
 
     loader.require(['a'], function(a) {
-      a.should.be.eql(['module b', 'module c']);
+      a.should.eql(['module b', 'module c']);
       done();
     });
   });
@@ -40,7 +40,7 @@ describe('require', function() {
     loader.define('lib/d', 'module d');
 
     loader.require('lib/util/a', function(a) {
-      a.should.be.eql(['module b', 'module c', 'module d']);
+      a.should.eql(['module b', 'module c', 'module d']);
       done();
     });
   });
@@ -53,7 +53,7 @@ describe('require', function() {
 
     it('最简单场景', function(done) {
       loader.require(['simple'], function(simple) {
-        simple.should.be.equal('/assets/simple.js');
+        simple.should.equal('/assets/simple.js');
         done();
       });
     });
@@ -64,9 +64,9 @@ describe('require', function() {
       loader.define('b', ['c', 'd', 'e'], 'module b');
       // c, d, e is async
       loader.require(['d', 'e', 'a', 'c', 'b'], function(d, e, a, c) {   // eslint-disable-line
-        a.should.be.equal('module a');
-        c.should.be.equal('/assets/c.js');
-        e.should.be.equal('/assets/e.js');
+        a.should.equal('module a');
+        c.should.equal('/assets/c.js');
+        e.should.equal('/assets/e.js');
         done();
       });
     });
@@ -105,7 +105,7 @@ describe('require', function() {
     });
 
     loader.require('test', function(test) {
-      (test === null).should.be.true();
+      (test === null).should.true();
       fn.args[0].should.match(/some error happen/);
       done();
     });
@@ -123,7 +123,7 @@ describe('require', function() {
 
     loader.define('compile/a', 'a');
     loader.require(['compile/a'], function(a) {
-      a.should.be.equal('b');
+      a.should.equal('b');
     });
   });
 });

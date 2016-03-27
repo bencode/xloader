@@ -761,14 +761,10 @@ var xloader =
 
 	var rCss = /\.css(\?|$)/;
 
-	exports.postLoadScript = null;
-
 	exports.load = function (url, options) {
 	  var type = rCss.test(url) ? 'css' : 'script';
 	  return exports[type](url, options);
 	};
-
-	var currentlyAddingScript = void 0;
 
 	exports.script = function (url, options) {
 	  options = options || {};
@@ -776,14 +772,14 @@ var xloader =
 	  var node = doc.createElement('script');
 	  var removeNode = !log.isEnabled('debug');
 
-	  onLoadAssets(node, url, removeNode, options, function () {
-	    if (exports.postLoadScript) {
-	      exports.postLoadScript(url, options);
-	      exports.postLoadScript = null;
-	    }
-	  });
+	  onLoadAssets(node, url, removeNode, options);
 
-	  node.async = 'async';
+	  if (options.async !== false) {
+	    node.async = 'async';
+	  }
+	  if (options.id) {
+	    node.setAttribute('data-id', options.id);
+	  }
 	  if (options.namespace) {
 	    node.setAttribute('data-namespace', options.namespace);
 	  }
@@ -793,9 +789,7 @@ var xloader =
 	    node.charset = options.charset;
 	  }
 
-	  currentlyAddingScript = node;
 	  append(node);
-	  currentlyAddingScript = null;
 	};
 	//~ script
 
@@ -890,35 +884,7 @@ var xloader =
 
 	function append(node) {
 	  baseElement ? head.insertBefore(node, baseElement) : head.appendChild(node);
-	}
-
-	// from seajs
-	var interactiveScript = void 0;
-
-	exports.getCurrentScript = function () {
-	  if (currentlyAddingScript) {
-	    return currentlyAddingScript;
-	  }
-
-	  // For IE6-9 browsers, the script onload event may not fire right
-	  // after the script is evaluated. Kris Zyp found that it
-	  // could query the script nodes and the one that is in "interactive"
-	  // mode indicates the current script
-	  // ref: http://goo.gl/JHfFW
-	  if (interactiveScript && interactiveScript.readyState === 'interactive') {
-	    return interactiveScript;
-	  }
-
-	  var scripts = head.getElementsByTagName('script');
-
-	  for (var i = scripts.length - 1; i >= 0; i--) {
-	    var script = scripts[i];
-	    if (script.readyState === 'interactive') {
-	      interactiveScript = script;
-	      return interactiveScript;
-	    }
-	  }
-		};
+		}
 
 /***/ },
 /* 18 */,

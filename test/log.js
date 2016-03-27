@@ -28,22 +28,22 @@ describe('log', function() {
     log.filter = false;
 
     log.info('hello');
-    log.handler.called.should.be.true();
+    log.handler.called.should.true();
 
     log.handler.reset();
 
     log.warn('world');
-    log.handler.called.should.be.true();
+    log.handler.called.should.true();
 
     log.handler.reset();
 
     log.debug('my');
-    log.handler.called.should.be.false();
+    log.handler.called.should.false();
 
     log.handler.reset();
 
     log.error('some error');
-    log.handler.called.should.be.true();
+    log.handler.called.should.true();
   });
 
 
@@ -52,21 +52,21 @@ describe('log', function() {
     log.filter = false;
 
     log.debug('hello');
-    log.handler.called.should.be.false();
+    log.handler.called.should.false();
 
     log.handler.reset();
 
     log.warn('world');
-    log.handler.called.should.be.true();
+    log.handler.called.should.true();
 
     log.handler.reset();
 
     log.info('loader');
-    log.handler.called.should.be.false();
+    log.handler.called.should.false();
 
     log.handler.reset();
 
     log.error('some error');
-    log.handler.called.should.be.true();
+    log.handler.called.should.true();
   });
 });

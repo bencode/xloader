@@ -42,9 +42,9 @@ describe('loader', function() {
     });
 
     x.require(['a', 'b', 'c'], function(a, b, c) {
-      a.should.be.eql(['module b', 'module c']);
-      b.should.be.equal('module b');
-      c.should.be.equal('module c');
+      a.should.eql(['module b', 'module c']);
+      b.should.equal('module b');
+      c.should.equal('module c');
 
       done();
     });
@@ -62,10 +62,10 @@ describe('loader', function() {
     });
 
     x.define('module/a', 'module a');
-    x.require('a').should.be.equal('module a');
+    x.require('a').should.equal('module a');
 
     x.define('test.a', 'test a');
-    x.require('t.a').should.be.equal('test a');
+    x.require('t.a').should.equal('test a');
   });
 
 
@@ -95,11 +95,11 @@ describe('loader', function() {
       }, 100);
     });
 
-    x.resolve('lofty/ui/simple').should.be.equal('/lofty/ui/simple.js');
+    x.resolve('lofty/ui/simple').should.equal('/lofty/ui/simple.js');
 
     x.require(['lang/class', 'lofty/ui/tab'], function(_, tag) {
-      _.should.be.equal('/xloader/lib/lang/class.js');
-      tag.should.be.equal('/lofty/ui/tab.js');
+      _.should.equal('/xloader/lib/lang/class.js');
+      tag.should.equal('/lofty/ui/tab.js');
       Request.prototype.handle.restore();
       done();
     });
@@ -119,8 +119,8 @@ describe('loader', function() {
     });
 
     x.require(['b', 'c'], function(b, c) {
-      b.spec.should.be.equal('module a');
-      c().should.be.equal(b);
+      b.spec.should.equal('module a');
+      c().should.equal(b);
       done();
     });
   });
@@ -131,8 +131,8 @@ describe('loader', function() {
     x.define('a', 'module a');
     x.define('b', ['a'], 'module b');
     x.define(['b', 'a'], function(b, a) {
-      b.should.be.equal('module b');
-      a.should.be.equal('module a');
+      b.should.equal('module b');
+      a.should.equal('module a');
       done();
     });
   });
@@ -152,19 +152,19 @@ describe('loader', function() {
       return null;
     });
 
-    x.hasDefine('a').should.be.true();
+    x.hasDefine('a').should.true();
 
     const mods = x.getModules();
-    mods.a.should.not.be.undefined();
-    mods.b.should.not.be.undefined();
+    mods.a.should.not.undefined();
+    mods.b.should.not.undefined();
 
     x.resolve('a');
-    (x.resolve('a') === undefined).should.be.true();
-    x.resolve('c').should.be.equal('/assets/c.js');
-    x.resolve('/a.js').should.be.equal('/a.js');
+    (x.resolve('a') === undefined).should.true();
+    x.resolve('c').should.equal('/assets/c.js');
+    x.resolve('/a.js').should.equal('/a.js');
 
     x.undefine('a');
-    (mods.a === undefined).should.be.true();
+    (mods.a === undefined).should.true();
   });
 
 
@@ -174,9 +174,9 @@ describe('loader', function() {
     sinon.stub(log, 'debug');
 
     const x = new Loader('x');
-    x._config.should.not.be.undefined();
-    x._define.should.not.be.undefined();
-    x._require.should.not.be.undefined();
+    x._config.should.not.undefined();
+    x._define.should.not.undefined();
+    x._require.should.not.undefined();
 
     log.level = last;
     log.debug.restore();
@@ -191,7 +191,7 @@ describe('loader', function() {
     });
 
     x.require('one', function(one) {
-      (one === null).should.be.true();
+      (one === null).should.true();
       log.error.args[0].should.match(/compile error/);
       log.error.restore();
       done();

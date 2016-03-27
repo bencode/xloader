@@ -7,9 +7,9 @@ const util = require('../src/util');
 describe('util', function() {
   it('isArray', function() {
     const isArray = util.__test.isArray;
-    isArray([1, 2, 3]).should.be.true();
-    isArray('123').should.be.false();
-    isArray(arguments).should.be.false();
+    isArray([1, 2, 3]).should.true();
+    isArray('123').should.false();
+    isArray(arguments).should.false();
   });
 
 
@@ -17,7 +17,7 @@ describe('util', function() {
     const o = util.extend(
         { a: 1, b: 2, d: 'd' },
         { b: 3, c: 4, d: null, e: undefined, f: 0 });
-    o.should.be.eql({ a: 1, b: 3, c: 4, d: 'd', f: 0 });
+    o.should.eql({ a: 1, b: 3, c: 4, d: 'd', f: 0 });
   });
 
 
@@ -27,7 +27,7 @@ describe('util', function() {
     util.each(list, function(index, value) {
       s += value;
     });
-    s.should.be.equal(10);
+    s.should.equal(10);
 
     const o = { a: 1, b: 2, c: 3 };
     s = '';
@@ -35,7 +35,7 @@ describe('util', function() {
       s += k + '=' + v + ';';
     });
 
-    s.should.be.equal('a=1;b=2;c=3;');
+    s.should.equal('a=1;b=2;c=3;');
   });
 
 
@@ -48,7 +48,7 @@ describe('util', function() {
       return undefined;
     });
 
-    list.should.be.eql([6, 8, 10]);
+    list.should.eql([6, 8, 10]);
   });
 
 
@@ -60,7 +60,7 @@ describe('util', function() {
       n: 100
     };
     const fn = util.proxy(o, 'm');
-    fn().should.be.equal(100);
+    fn().should.equal(100);
   });
 
 
@@ -78,21 +78,21 @@ describe('util', function() {
   it('guid', function() {
     const now = util.guid();
     now.should.be.type('number');
-    (util.guid() - now).should.be.equal(1);
+    (util.guid() - now).should.equal(1);
   });
 
 
   it('dirname', function() {
-    util.dirname('lang/core').should.be.equal('lang');
-    util.dirname('hello/abcd/').should.be.equal('hello');
-    util.dirname('hi').should.be.equal('');
+    util.dirname('lang/core').should.equal('lang');
+    util.dirname('hello/abcd/').should.equal('hello');
+    util.dirname('hi').should.equal('');
   });
 
 
   it('join', function() {
     util.join('aaa/bbb/ccc', '.././.././zzz')
-        .should.be.equal('aaa/zzz');
-    util.join('aaa', 'bbb').should.be.equal('aaa/bbb');
-    util.join('', '../render.art').should.be.equal('../render.art');
+        .should.equal('aaa/zzz');
+    util.join('aaa', 'bbb').should.equal('aaa/bbb');
+    util.join('', '../render.art').should.equal('../render.art');
   });
 });

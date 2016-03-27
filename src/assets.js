@@ -27,6 +27,9 @@ exports.script = function(url, options) {
   if (options.async !== false) {
     node.async = 'async';
   }
+  if (options.id) {
+    node.setAttribute('data-id', options.id);
+  }
   if (options.namespace) {
     node.setAttribute('data-namespace', options.namespace);
   }

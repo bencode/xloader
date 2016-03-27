@@ -45,7 +45,7 @@ define(id, factory)
  * 加载模块
  * @param {Array|String}  - 待加载的模块列表
  * @param {Function}      - 回调方法，可以省略
- * @return {Any}          - 同步加载时，会返回第一个模块
+ * @return {Any}          - 同步加载时，会返回第一个已加载的模块，如果是异步加载返回`undefined`
  */
 require(ids, callback)
 ```

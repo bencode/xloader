@@ -154,6 +154,7 @@ x.define(...)   // 现在就可以使用x来定义和加载模块了
 
 ## 开发和构建
 
+### 运行开发环境
 
 ```
 git clone https://github.com/bencode/xloader.git
@@ -165,11 +166,20 @@ npm start
 ### 运行单元测试
 
 
+- NodeJs环境
+
 ```
 npm run test
 ```
+
+- 浏览器环境
 
 ```
 http://127.0.0.1:8080/test/browser/
 ```
 
+### 构建
+
+```
+npm run build
+```

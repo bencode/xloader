@@ -10,16 +10,11 @@ const log = require('./log');
 const rCss = /\.css(\?|$)/;
 
 
-exports.postLoadScript = null;
-
-
 exports.load = function(url, options) {
   const type = rCss.test(url) ? 'css' : 'script';
   return exports[type](url, options);
 };
 
-
-let currentlyAddingScript;
 
 exports.script = function(url, options) {
   options = options || {};
@@ -27,14 +22,11 @@ exports.script = function(url, options) {
   const node = doc.createElement('script');
   const removeNode = !log.isEnabled('debug');
 
-  onLoadAssets(node, url, removeNode, options, function() {
-    if (exports.postLoadScript) {
-      exports.postLoadScript(url, options);
-      exports.postLoadScript = null;
-    }
-  });
+  onLoadAssets(node, url, removeNode, options);
 
-  node.async = 'async';
+  if (options.async !== false) {
+    node.async = 'async';
+  }
   if (options.namespace) {
     node.setAttribute('data-namespace', options.namespace);
   }
@@ -44,9 +36,7 @@ exports.script = function(url, options) {
     node.charset = options.charset;
   }
 
-  currentlyAddingScript = node;
   append(node);
-  currentlyAddingScript = null;
 };
 //~ script
 
@@ -151,31 +141,3 @@ function append(node) {
       head.appendChild(node);
 }
 
-
-// from seajs
-let interactiveScript;
-
-exports.getCurrentScript = function() {
-  if (currentlyAddingScript) {
-    return currentlyAddingScript;
-  }
-
-  // For IE6-9 browsers, the script onload event may not fire right
-  // after the script is evaluated. Kris Zyp found that it
-  // could query the script nodes and the one that is in "interactive"
-  // mode indicates the current script
-  // ref: http://goo.gl/JHfFW
-  if (interactiveScript && interactiveScript.readyState === 'interactive') {
-    return interactiveScript;
-  }
-
-  const scripts = head.getElementsByTagName('script');
-
-  for (let i = scripts.length - 1; i >= 0; i--) {
-    const script = scripts[i];
-    if (script.readyState === 'interactive') {
-      interactiveScript = script;
-      return interactiveScript;
-    }
-  }
-};

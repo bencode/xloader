@@ -768,7 +768,7 @@ var xloader =
 	  return exports[type](url, options);
 	};
 
-	var currentlyAddingScript = undefined;
+	var currentlyAddingScript = void 0;
 
 	exports.script = function (url, options) {
 	  options = options || {};
@@ -893,7 +893,7 @@ var xloader =
 	}
 
 	// from seajs
-	var interactiveScript = undefined;
+	var interactiveScript = void 0;
 
 	exports.getCurrentScript = function () {
 	  if (currentlyAddingScript) {

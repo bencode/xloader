@@ -5,7 +5,7 @@ xloader
 [![Coverage Status](https://coveralls.io/repos/bencode/xloader/badge.svg?branch=master&service=github)](https://coveralls.io/github/bencode/xloader?branch=master)
 
 
-一个精致实用的Javascript AMD模块加载器，可用于NodeJs环境和浏览器环境。
+一个精致实用的Javascript模块加载器，可用于NodeJs环境和浏览器环境。
 
 
 ## Useage
@@ -27,25 +27,32 @@ xloader
 ```js
 /**
  * 定义模块
- * @param {String}  id      - 模块id
- * @param {Array}   depends - 依赖模块
- * @param {Any}     factory - 模块构造器
+ * @param {String}    id      - 模块id
+ * @param {Array}     depends - 依赖的模块
+ * @param {NotArray}  factory - 模块构造器
  */
 define(id, depends, factory)
 define(id, depends)
 define(id, factory)
-define(depends, factory)
-define(factory)
 ```
 
 
 ### require(ids, callback) - 加载模块
 
 
+```js
+/**
+ * 加载模块
+ * @param {Array|String}  - 待加载的模块列表
+ * @param {Function}      - 回调方法，可以省略
+ * @return {Any}          - 同步加载时，会返回第一个模块
+ */
+require(ids, callback)
+```
+
 
 ### xloader.config(name, value) - 配置加载器
 
-用于设置和获取config
 
 ```js
 loader.config(name)
@@ -82,6 +89,7 @@ xloader.config('resolve', function(id) {
 });
 ```
 
+
 ### xloader.new(namespace, [options]) -> Loader
 
 定义一个新的loader
@@ -104,6 +112,8 @@ x.require(['util'], function(util) {
   util.sum(1, 2).should.be.equal(3);
 });
 ```
+
+新构建的加载器支持以下API：
 
 
 ### loader.define(id, depends, factory)
@@ -140,3 +150,26 @@ window.x = xloader.noConflict();
 define(...)     // 这个就是原来的define
 x.define(...)   // 现在就可以使用x来定义和加载模块了
 ```
+
+
+## 开发和构建
+
+
+```
+git clone https://github.com/bencode/xloader.git
+cd xloader
+npm install
+npm start
+```
+
+### 运行单元测试
+
+
+```
+npm run test
+```
+
+```
+http://127.0.0.1:8080/test/browser/
+```
+

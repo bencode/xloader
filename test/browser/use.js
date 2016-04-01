@@ -55,25 +55,6 @@ describe('use/simple', function() {
       done();
     });
   });
-
-  it('config requestOptions.async', function(done) {
-    const prefix = '/test/browser/fixtures/';
-    const $$ = document.querySelectorAll.bind(document);
-
-    x.require(`${prefix}async-1.js`, function() {
-      const node1 = $$(`[data-id="${prefix}async-1.js"]`)[0];
-      node1.getAttribute('async').should.equal('');
-
-      const z = x.new();
-      z.config('requestOptions', { async: false });
-
-      z.require(`${prefix}async-2.js`, function() {
-        const node2 = $$(`[data-id="${prefix}async-2.js"]`)[0];
-        (node2.getAttribute('async') === null).should.true();
-        done();
-      });
-    });
-  });
 });
 
 

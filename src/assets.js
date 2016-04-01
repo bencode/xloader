@@ -24,9 +24,6 @@ exports.script = function(url, options) {
 
   onLoadAssets(node, url, removeNode, options);
 
-  if (options.async !== false) {
-    node.async = 'async';
-  }
   if (options.id) {
     node.setAttribute('data-id', options.id);
   }

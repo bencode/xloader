@@ -1287,9 +1287,6 @@ var test =
 
 	  onLoadAssets(node, url, removeNode, options);
 
-	  if (options.async !== false) {
-	    node.async = 'async';
-	  }
 	  if (options.id) {
 	    node.setAttribute('data-id', options.id);
 	  }
@@ -1453,25 +1450,6 @@ var test =
 	      d.b.should.equal('b');
 	      d.c.result.should.eql(['b', 'c']);
 	      done();
-	    });
-	  });
-
-	  it('config requestOptions.async', function (done) {
-	    var prefix = '/test/browser/fixtures/';
-	    var $$ = document.querySelectorAll.bind(document);
-
-	    x.require(prefix + 'async-1.js', function () {
-	      var node1 = $$('[data-id="' + prefix + 'async-1.js"]')[0];
-	      node1.getAttribute('async').should.equal('');
-
-	      var z = x.new();
-	      z.config('requestOptions', { async: false });
-
-	      z.require(prefix + 'async-2.js', function () {
-	        var node2 = $$('[data-id="' + prefix + 'async-2.js"]')[0];
-	        (node2.getAttribute('async') === null).should.true();
-	        done();
-	      });
 	    });
 	  });
 		});

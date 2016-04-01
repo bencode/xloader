@@ -1,3 +1,12 @@
+<a name="3.7.0"></a>
+# [3.7.0](https://github.com/bencode/xloader/compare/v3.6.0...v3.7.0) (2016-04-01)
+
+
+### Features
+
+* 去掉async参数 ([860e329](https://github.com/bencode/xloader/commit/860e329))
+
+
 <a name="3.6.0"></a>
 # 3.6.0 (2016-03-27)
 
@@ -19,6 +28,4 @@
 * 完成webpack的改造 ([eff2ea3](https://github.com/bencode/xloader/commit/eff2ea3))
 * 完成重构 ([533236a](https://github.com/bencode/xloader/commit/533236a))
 * 添加关闭async支持，并且去掉不再使用的加载特性 ([26ecc2e](https://github.com/bencode/xloader/commit/26ecc2e))
-
-
 

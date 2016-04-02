@@ -3,8 +3,8 @@
 
 const sinon = require('sinon');
 
-const log = require('../src/log');
-const Loader = require('../src/loader');
+const log = require('../lib/log');
+const Loader = require('../lib/loader');
 
 
 /* eslint max-nested-callbacks: [2, 5] */
@@ -54,11 +54,13 @@ describe('loader', function() {
   it('加载器支持alias配置', function() {
     const x = new Loader('x');
     x.config('alias', { a: 'module/a' });
-    x.config('alias', function(id) {
-      if (/^t\./.test(id)) {
-        return id.replace(/^t\./, 'test.');
+    x.config({
+      alias: function(id) {
+        if (/^t\./.test(id)) {
+          return id.replace(/^t\./, 'test.');
+        }
+        return null;
       }
-      return null;
     });
 
     x.define('module/a', 'module a');
@@ -85,7 +87,7 @@ describe('loader', function() {
       return null;
     });
 
-    const Request = require('../src/request');
+    const Request = require('../lib/request');
     sinon.stub(Request.prototype, 'handle', function(options, callback) {
       setTimeout(function() {
         x.define(options.id, function() {

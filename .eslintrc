@@ -1,3 +1,6 @@
 {
-  extends: 'bce'
+  extends: 'bce',
+  rules: {
+    no-underscore-dangle: 0
+  }
 }

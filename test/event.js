@@ -1,7 +1,7 @@
 'use strict';
 
 
-const Event = require('../src/event');
+const Event = require('../lib/event');
 
 
 describe('event', function() {

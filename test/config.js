@@ -1,7 +1,7 @@
 'use strict';
 
 
-const Config = require('../src/config');
+const Config = require('../lib/config');
 
 
 describe('config', function() {

@@ -1,7 +1,7 @@
 'use stricg';
 
 
-const assets = require('../../src/assets');
+const assets = require('../../lib/assets');
 
 
 describe('assets', function() {

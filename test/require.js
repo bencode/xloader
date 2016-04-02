@@ -3,9 +3,9 @@
 
 const sinon = require('sinon');
 
-const Event = require('../src/event');
-const Define = require('../src/define');
-const Require = require('../src/require');
+const Event = require('../lib/event');
+const Define = require('../lib/define');
+const Require = require('../lib/require');
 
 
 /* eslint max-nested-callbacks: [2, 4] */

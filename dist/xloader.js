@@ -890,6 +890,8 @@ var xloader =
 
 	'use strict';
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 	var util = __webpack_require__(2);
 	var log = __webpack_require__(5);
 	var klass = __webpack_require__(11);
@@ -934,6 +936,13 @@ var xloader =
 	  }
 
 	  self.config = function (name, value) {
+	    if ((typeof name === 'undefined' ? 'undefined' : _typeof(name)) === 'object') {
+	      for (var key in name) {
+	        config.set(key, name[key]);
+	      }
+	      return;
+	    }
+
 	    return value === undefined ? config.get(name) : config.set(name, value);
 	  };
 

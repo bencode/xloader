@@ -2,7 +2,7 @@
 
 
 const sinon = require('sinon');
-const log = require('../src/log');
+const log = require('../lib/log');
 
 
 /* global beforeEach, afterEach */

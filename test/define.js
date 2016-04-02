@@ -3,8 +3,8 @@
 
 const sinon = require('sinon');
 
-const Define = require('../src/define');
-const log = require('../src/log');
+const Define = require('../lib/define');
+const log = require('../lib/log');
 
 
 describe('define', function() {

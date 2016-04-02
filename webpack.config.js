@@ -6,7 +6,7 @@ var pathUtil = require('path');
 
 module.exports = {
   entry: {
-    xloader: './src/index.js',
+    xloader: './lib/index.js',
     test: './test/browser/index.js'
   },
 

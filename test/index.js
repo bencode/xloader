@@ -1,7 +1,7 @@
 'use strict';
 
 
-const x = require('../src/index');
+const x = require('..');
 
 
 describe('index', function() {

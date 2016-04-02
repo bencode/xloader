@@ -1,7 +1,7 @@
 'use strict';
 
 
-const util = require('../src/util');
+const util = require('../lib/util');
 
 
 describe('util', function() {
